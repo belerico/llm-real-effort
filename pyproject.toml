@@ -1,0 +1,29 @@
+[project]
+name = "real_effort"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "otree>=5.11.1",
+    "openai>=1.0",
+    "pillow",
+    "py-sudoku",
+    "pyyaml",
+    "ipykernel>=7.2.0",
+    "jinja2>=3.1.6",
+    "matplotlib>=3.10.8",
+    "seaborn>=0.13.2",
+    "pandas>=2.3.3",
+    "requests>=2.32.5",
+    "python-dotenv>=1.2.2",
+    "scipy>=1.15.0",
+    "nbconvert>=7.17.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-dependency",
+]
+
+[tool.uv]
+override-dependencies = ["markupsafe==1.1.1"]

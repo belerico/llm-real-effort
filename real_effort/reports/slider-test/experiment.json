@@ -1,0 +1,123 @@
+{
+  "name": "slider-test",
+  "created_at": "2026-04-01T17:56:04.176164+00:00",
+  "completed_at": "2026-04-01T17:56:17.477851+00:00",
+  "status": "completed",
+  "config": {
+    "models": [
+      "google/gemini-3-flash-preview"
+    ],
+    "games": [
+      "slider_puzzle"
+    ],
+    "temperature": 0.6,
+    "max_tokens": 2048,
+    "top_p": null,
+    "reasoning_effort": "high",
+    "reasoning_max_tokens": null,
+    "game_configs": {
+      "slider_puzzle": {
+        "size": 3,
+        "num_shuffles": 25
+      }
+    },
+    "model_configs": {
+      "openai/gpt-5.4": {
+        "temperature": null
+      },
+      "openai/gpt-5.2": {
+        "temperature": null
+      },
+      "openai/gpt-5.1": {
+        "temperature": null
+      },
+      "openai/gpt-5": {
+        "temperature": null
+      },
+      "openai/gpt-5-mini": {
+        "temperature": null
+      },
+      "openai/o3": {
+        "temperature": null
+      },
+      "openai/o4-mini": {
+        "temperature": null
+      },
+      "openai/gpt-5.4-mini": {
+        "temperature": null
+      },
+      "openai/gpt-5.4-nano": {
+        "temperature": null
+      },
+      "openai/o4-mini-high": {
+        "temperature": null
+      },
+      "qwen/qwen3.5-397b-a17b": {
+        "provider": {
+          "require_parameters": true
+        }
+      },
+      "moonshotai/kimi-k2.5": {
+        "provider": {
+          "require_parameters": true
+        }
+      }
+    },
+    "run_delay": 3,
+    "max_retries": 1,
+    "retry_base_delay": 10,
+    "game_defaults": {
+      "repetitions": 20,
+      "timeout": 7200,
+      "puzzle_timeout": 120,
+      "incentive": true,
+      "incentive_text": "You will earn a bonus of $0.50 for each correct answer.",
+      "persona": "standard"
+    },
+    "text_only": false
+  },
+  "summary": {
+    "total_runs": 1,
+    "completed": 1,
+    "failed": 0,
+    "data_missing": 0
+  },
+  "runs": [
+    {
+      "model": "google/gemini-3-flash-preview",
+      "game": "slider_puzzle",
+      "status": "completed",
+      "started_at": "2026-04-01T17:56:04.177459+00:00",
+      "completed_at": "2026-04-01T17:56:17.371781+00:00",
+      "retries": 0,
+      "error": null,
+      "tokens": {
+        "prompt_tokens": 1294,
+        "completion_tokens": 2044,
+        "total_tokens": 3338,
+        "exit_code": 0
+      },
+      "player_summary": {
+        "num_correct": 0,
+        "num_failed": 1,
+        "num_trials": 1
+      },
+      "session_time": 12.99,
+      "data_missing": false,
+      "puzzles": [
+        {
+          "iteration": 1,
+          "solution": "3 7 4 8 1 5 7 4 6 3 4 7 5 1 7 4 3 6 8 7 4 5 2 3 6",
+          "response": "To solve the sliding tile puzzle, we need to arrange the tiles in the order 1-2-3, 4-5-6, 7-8 with the empty space at the bottom-right.\n\n**Initial State:**\n1 5 2\n8 3 _\n4 7 6\n\n**Step-by-step solution:**\n1. Move **2** down into the empty space. (State: 1 5 _, 8 3 2, 4 7 6)\n2. Move **5** right. (State: 1 _ 5, 8 3 2, 4 7 6)\n3. Move **3** up. (State: 1 3 5, 8 _ 2, 4 7 6)\n4. Move **2** left. (State: 1 3 5, 8 2 _, 4 7 6)\n5. Move **5** down. (State: 1 3 _, 8 2 5, 4 7 6)\n6. Move **3** right. (State: 1 _ 3, 8 2 5, 4 7 6)\n7. Move **2** up. (State: 1 2 3, 8 _ 5, 4 7 6) - *Top row 1-2-3 is complete.*\n8. Move **8** right. (State: 1 2 3, _ 8 5, 4 7 6)\n9. Move **4** up. (State: 1 2 3, 4 8 5, _ 7 6)\n10. Move **7** left. (State: 1 2 3, 4 8 5, 7 _ 6)\n11. Move **8** down. (State: 1 2 3, 4 _ 5, 7 8 6)\n12. Move",
+          "reasoning_content": "**Examining Puzzle Configuration**\n\nI'm currently working on the 3x3 grid puzzle, aiming for the target state. Right now, the empty space is at position (2,3). Rows are defined. Next step will be figuring out the steps to solve the puzzle, and the required moves.\n\n\n**Evaluating the First Row**\n\nI've decided to refine the approach. Instead of a general solution, I'm focusing on arranging the first row: 1, 2, 3. I've initiated several moves, and the intermediate states are now being logged for tracking. The empty space's position is a key element in these moves. I'm carefully evaluating the impact of each move.\n\n\n**Sequencing Row Completion**\n\nI've successfully arranged the first row (1, 2, 3), and have documented the steps. Now, my focus is shifting to the second and third rows, aiming for (4, 5, 6) and (7, 8, _). The intermediate steps and empty space positions are being carefully tracked. I'm building on the previous strategy to continue my efforts.\n\n\n**Rethinking the Moves**\n\nAfter achieving the first row, I realized the plan for subsequent rows needed revision. I got a little ahead of myself. I am now working through the best sequence of moves, after getting 1, 2, 3 in the first row. The current configuration is being used as a base point. I'm focusing on minimizing steps, and trying to arrive at a solution.",
+          "reasoning_tokens": 1596,
+          "is_correct": false,
+          "response_time": 12.98,
+          "prompt_tokens": 1294,
+          "completion_tokens": 2044,
+          "total_tokens": 3338
+        }
+      ]
+    }
+  ]
+}

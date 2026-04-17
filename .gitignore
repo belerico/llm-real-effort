@@ -1,0 +1,41 @@
+.venv/
+__pycache__/
+*.py[cod]
+*.sqlite3
+.DS_Store
+.claude/
+*.egg-info/
+dist/
+build/
+.coverage
+*.log
+real_effort/reports_ref_points/
+
+# reference-points replication (not part of the release)
+real_effort/reference_points/
+real_effort/_static/reference_points/
+real_effort/run_reference_points.py
+
+# secrets
+.env
+
+# LaTeX build artifacts
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.fdb_latexmk
+paper/*.fls
+paper/*.out
+paper/*.synctex.gz
+paper/*.log
+
+# personal tooling (MemPalace)
+mempalace.yaml
+entities.json
+
+# optional — literature PDFs (likely copyrighted)
+literature/
+
+# sqlite sidecar files
+*.db-shm
+*.db-wal

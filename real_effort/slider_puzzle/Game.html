@@ -1,0 +1,32 @@
+{% block styles  %}
+    <link href="{{ static 'slider_puzzle/slider_puzzle.css' }}" rel="stylesheet"/>
+{% endblock %}
+
+{{ block title }}
+Slider Puzzle
+{{ endblock }}
+
+{{ block content }}
+<div class="task-wrapper" data-task="slider_puzzle" data-page="Game">
+    <div class="d-flex flex-column align-items-center">
+        <h3>
+            Iteration <span id="iter-txt"></span>
+        </h3>
+        <p>Solved: <span id="solved-txt"></span>. Failed: <span id="failed-txt"></span>.</p>
+
+        <div id="puzzle-grid" class="puzzle-grid" data-size="{{ size }}"></div>
+        <p id="moves-txt" class="text-muted mt-1">Moves: 0</p>
+
+        <p class="warn" id="warning-txt"></p>
+    </div>
+    <br>
+    {{ include C.INSTRUCTION_TEMPLATE }}
+</div>
+
+{{ endblock }}
+
+{{ block scripts }}
+<script src="{{ static 'slider_puzzle/slider_puzzle.js' }}"></script>
+<script src="{{ static 'shared/puzzle_timer.js' }}"></script>
+{{ if DEBUG }}<script src="{{ static 'slider_puzzle/slider_puzzle_cheating.js' }}"></script>{{ endif }}
+{{ endblock }}

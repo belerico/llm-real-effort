@@ -1,0 +1,966 @@
+
+\documentclass[12pt,a4paper]{article}
+
+\usepackage[english]{babel}
+\usepackage{enumitem}
+
+% Set page size and margins
+% Replace `letterpaper' with `a4paper' for UK/EU standard size
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+% Useful packages
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{booktabs}
+\usepackage{tcolorbox}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{pdflscape}
+\usepackage{float}
+\usepackage{natbib}
+\usepackage{todonotes}
+\usepackage[normalem]{ulem}
+\usepackage{tabularx}
+\usepackage{makecell}
+\usepackage[utf8]{inputenc}
+\usepackage{authblk}
+\usepackage[T1]{fontenc}
+
+% Relax float placement thresholds
+\renewcommand{\topfraction}{1.0}
+\renewcommand{\bottomfraction}{1.0}
+\renewcommand{\textfraction}{0.1}
+\renewcommand{\floatpagefraction}{0.7}
+
+\newcommand{\red}[1]{\textcolor{red}{#1}}
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+\newcommand{\SC}[1]{\textcolor{violet}{SC: #1}}
+\definecolor{ACgreen}{RGB}{34,139,34}
+\newcommand{\AC}[1]{\textcolor{ACgreen}{AC: #1}}
+
+
+\title{Artificial Effort}
+%or how I learned to stop solving real-effort tasks and love AI
+
+\author[1]{Federico Belotti}
+\author[1]{Stefano Coniglio}
+\author[1]{Antonio Cosma}
+\author[1]{Francesco Fallucchi}
+
+\affil[1]{University of Bergamo, Italy. Corresponding author: \href{mailto:francesco.fallucchi@unibg.it}{francesco.fallucchi@unibg.it}}
+
+\begin{document}
+
+\maketitle
+
+
+\begin{abstract}
+% \blue{Real-effort tasks, in which participants perform cognitively costly activities whose outcomes depend on actual performance, are widely used in experimental economics. Their validity, however, rests on the assumption that a human is performing them. We study whether this assumption still holds in the age of Artificial Intelligence (AI) and, in particular, of Large Language Models (LLMs).} Using 8 canonical \blue{real-effort} tasks and 23 contemporary LLMs \blue{from three major providers}, we show that many tasks can now be solved accurately and cheaply in a completely automated manner, with only a few remain resistant to automation. We also observe that incentive framing and prompts to simulate human behavior have little effect on performance. Our findings identify when real-effort tasks remain \blue{valid} and when they may no longer provide reliable evidence of human effort in unsupervised settings due to the risk of being {\bf maliciously} \SC{ voglio dire che Karim imbroglia e usa l'IA} run by an IA rather than a human subject
+Real-effort tasks, in which participants perform cognitively costly activities whose outcomes depend on actual performance, are widely used in experimental economics. Their validity, however, rests on the assumption that a human performs them. We study whether this assumption still holds in the era of Artificial Intelligence (AI) and Large Language Models (LLMs). Using 8 canonical real-effort tasks and 23 LLMs from three major providers, we show that most tasks can now be solved accurately and at a negligible cost, while only a few resist automation.
+Performance improves with each model generation, and mid-tier models are rapidly closing the gap with frontier ones, broadening the set of widely accessible models that can automate these tasks. Additionally, we show that verbally offering monetary incentives has no effect on LLM performance. Our findings establish a boundary condition for the use of real-effort tasks in unsupervised settings: when participants can cheaply outsource task completion to an LLM, observed performance may no longer reflect genuine human effort.
+\end{abstract}
+
+
+\section{Introduction}
+
+Real-effort tasks are a central methodological tool in experimental economics \citep{charness2018experimental, carpenter201919}. By requiring participants to complete activities that take time, attention, and cognitive processing, these tasks are used to study effort provision, performance, fatigue, and responsiveness to incentives. Their appeal lies in the fact that outcomes are not purely stated:
+%\SC{ ?? FF: l'alternativa ai real effort task sono gli stated effort task.. ovvero la gente dichiara quanto farebbe...} 
+performance is intended to reflect the costly exertion of resources. For this reason, real-effort tasks are often treated as a relatively direct way to measure behavior-under-effort costs rather than preferences reported in the abstract. This interpretation, however, rests on an important and often implicit assumption: {\em the agent completing the task should be a human}. 
+
+\begin{comment}
+
+\sout{Such an assumption matters because the meaning of performance depends on specifically human constraints. Humans face effort costs, limited attention, cognitive frictions, and motivational trade-offs, so variation in output can plausibly be interpreted as reflecting differences in ability, persistence, or incentive responsiveness. If those underlying frictions are absent or substantially altered, the same observed output may no longer have the same behavioral content.} \SC{capisco il pto ma non credo serva andare a spiegare perche' vogliamo Karim e non un'AI -- e' chiaro e viene un messaggio + forte se non diciamo niente IMO FF:OK}
+
+\end{comment}
+
+
+The rapid diffusion of modern Artificial Intelligence (AI) systems and, in particular, of Large Language Models (LLMs) such as
+%ChatGPT \citep{openai2023gpt4}, Gemini \citep{team2023gemini}, or Claude \citep{anthropic2024claude3}
+ChatGPT \citep{openai2022chatgpt}, Gemini \citep{pichai2023gemini,team2023gemini}, or Claude \citep{anthropic2023claude} makes this assumption less secure, especially in online environments. Indeed, in remote and unsupervised settings such as online labor markets, open survey links, and web-based experiments, researchers may be unable to verify with confidence whether a response was generated by a human participant or by an automated system \citep{bevendorff2025detection}. If LLMs were able to complete canonical real-effort tasks with high accuracy at low marginal cost, then these tasks may cease to function as measures of costly human effort in precisely those contexts where they are often most attractive to use, and could also be exploited by malicious individuals as a source of revenue in a {\em task--milling} action. The concern is therefore not only one of participant authenticity but, rather, a question of construct validity: a task designed to capture human effort may instead capture access to a capable AI model.
+
+This concern has become more pressing as online experimentation has expanded more rapidly than the tools available to verify participant identity and ensure proper task completion. Yet, there is still little direct evidence in the literature that state-of-the-art LLMs can effectively solve those real-effort tasks that are widely used in experimental economics, with a notable exception of how AI can replace humans in generating survey responses~\cite{celebi2026mission}.\footnote{On the other hand, success on standard AI benchmarks---whether they test general knowledge and reasoning (e.g., MMLU \citep{hendrycks2021measuring}, BIG-bench \citep{srivastava2022beyond}, ARC \citep{clark2018think}, HellaSwag \citep{zellers2019hellaswag}), mathematical logic (e.g., GSM8K \citep{cobbe2021training} MATH \citep{hendrycks2021measuringmath}), factual retrieval (e.g., TriviaQA \citep{joshi2017triviaqa} and Natural Questions \citep{kwiatkowski2019natural}), or coding and agentic capabilities (e.g., HumanEval \citep{chen2021evaluating} and SWE-bench \citep{jimenez2024swebench})---does not automatically imply success on the specific tasks economists use to elicit costly effort.}
+
+\begin{comment}
+
+\sout{Real-effort tasks were developed and validated under the premise that completing them requires meaningful human exertion. But when a participant can outsource performance to a model, the interpretation of both levels and treatment effects becomes less clear. A high score may no longer indicate effort, skill, or engagement; it may instead reflect the use of external AI assistance. Likewise, an observed response to incentives may become difficult to interpret if the production technology underlying task completion differs across participants.} \SC{anche qua: capisco, ma non credo serva}
+
+This concern is increasingly salient because online experimentation has expanded faster than tools for verifying participant identity and task completion conditions.
+
+
+Despite the importance of this issue, there is still limited direct evidence on whether the real-effort tasks commonly used in experimental economics can be solved effectively by contemporary LLMs. Recent discussions around AI and research integrity has focused either on benchmark performance or on the generation of survey responses \citep{celebi2026mission}.\footnote{Yet, success on standard AI benchmarks---whether they test general knowledge and reasoning (e.g., MMLU \citep{hendrycks2021measuring}, BIG-bench \citep{srivastava2022beyond}, ARC \citep{clark2018think}, and HellaSwag \citep{zellers2019hellaswag}), mathematical logic (e.g., GSM8K \citep{cobbe2021training} and MATH \citep{hendrycks2021measuringmath}), factual retrieval (e.g., TriviaQA \citep{joshi2017triviaqa} and Natural Questions \citep{kwiatkowski2019natural}), or coding and agentic capabilities (e.g., HumanEval \citep{chen2021evaluating} and SWE-bench \citep{jimenez2024swebench})---does not automatically imply success on the specific tasks economists use to elicit costly effort}
+
+
+Our contribution is methodological. As LLMs advance, many real-effort tasks no longer provide reliable measures of human effort. We identify a boundary condition for their use: tasks that remain difficult for current LLMs may still resist automation, while those that can be solved accurately and cheaply undermine inference in unsupervised settings.
+\end{comment}
+
+This paper provides an assessment of whether LLMs can perform well on the canonical tasks that experimental economists routinely adopt to measure human effort. We evaluate a set of well established real-effort tasks using three families of LLMs taken from the GPT, Gemini, and Claude series and address four related research questions. First, we compare accuracy across LLMs to assess whether their performance differs and, if so, how substantially. Second, we examine how performance evolves across different versions of the same model family, which is an indicator of how quickly accuracy may change over time as LLMs improve. Third, we consider the economic dimension of substitution by comparing model performance to the cost of model use, asking whether replacing human effort with LLM-generated output is not only feasible but also cost-effective for a profit-seeking agent. Fourth, we test whether the verbal promise of a monetary reward associated with task performance may affect LLM accuracy---a question central to the logic of real-effort experiments, which rely on incentive sensitivity.
+
+Our results are as follows.
+First, we show that LLM performance varies substantially across models, determined largely by model tier rather than provider.
+Second, we show that, within each LLM tier (e.g., different versions of Claude Sonnet), with only one exception newer releases always outperform previous ones, with the largest gains concentrated in the mid-range tiers.
+Third, we show that, at typical online-experiment piece rates, every model costs only small fraction of what a human participant would earn for the same workload, thereby generating a positive net gain.
+Lastly, we show that verbal monetary incentives have no detectable effect on LLM performance, and neither do instructions to behave as a human participant.
+
+\section{Method}
+
+Our benchmark comprises eight real-effort tasks that are available in the Otree repository \citep{chen2016otree}, implemented in their canonical form or with only minor modifications \citep{charness2018experimental}. Each task requires a different combination of perceptual, arithmetic, and reasoning abilities, as summarized in Table~\ref{tab:tasks}.\footnote{The pre-registration plan is available in OSF: \url{https://osf.io/7pz4m/overview}.}
+
+% \SC{meglio togliere la lista puntata e riportare tutto in un paragrafo?} 
+% \begin{itemize}
+%     \item \textbf{Addition \citep{niederle2007women}}. An addition expression (e.g., $21 + 47 + 83$) is shown with 3 integer addends of up to 3 digits each; the goal is to calculate the exact sum.
+    
+%     \item \textbf{Counting Zeros \citep{abeler2011reference}}. A $15 \times 10$ table of 0s and 1s is displayed; the goal is to count the correct number of zeros.
+    
+%     \item \textbf{Decoding Letters into Numbers \citep{erkal2011relative, fallucchi2021arbitraging}}. A table is displayed, showing a mapping between 10 letters and the digits 0--9, together with a 7-digit coded string; the goal is to decode the string back into the corresponding letters.
+    
+%     \item \textbf{Number Pair Summation \citep{rosaz2016quitting}}. A $4 \times 4$ grid of decimal numbers is presented. Exactly one pair of numbers sums to a target value (10.0); Goal: identify and return that pair.
+    
+%     \item \textbf{Sequence Completion \citep{bracha2013}}. A sequence of numbers that follows a mathematical pattern (e.g., arithmetic, geometric, or alternating operations) is provided; the goal is to predict the next element.
+    
+%     \item \textbf{Sudoku \citep{calsamiglia2013incentive}}. A partially filled $6 \times 6$ Sudoku grid (with $2 \times 3$ boxes) is displayed; the goal is to identify all missing numbers and report them in reading order (left-to-right, top-to-bottom), space-separated.
+    
+%     \item \textbf{Distorted Text Transcription \citep{augenblick2015working}}. An image of a 12-character alphanumeric string rendered with random distortions is shown; the goal is to transcribe the text exactly (case-insensitive).
+
+%     \item \textbf{String Entry \citep{kessler2016tax}}. A 9-character string composed of seven special characters (\texttt{/ \textbackslash{} ) ( \_ <} and space) is displayed as an image; the goal is to reproduce the exact string, including spaces.
+% \end{itemize}
+\begin{table}[ht]
+\centering\scriptsize
+% Increase this value to add more global vertical padding
+\caption{Summary of the eight real-effort tasks.}
+\label{tab:tasks}
+\renewcommand{\arraystretch}{1.8} 
+\begin{tabularx}{\textwidth}{@{}lXX@{}}
+\toprule
+\textbf{Task} & \textbf{Input} & \textbf{Problem} \\
+\midrule
+\makecell[tl]{Addition \\ {\citep{niederle2007women}}} & An addition expression with 3 integer addends of up to 3 digits each. & Calculate the exact sum. \\
+\makecell[tl]{Counting Zeros \\ {\citep{abeler2011reference}}} & A $15 \times 10$ table of 0s and 1s. & Count the number of 0s. \\
+\makecell[tl]{Letter Decoding \\ {(\citealt{erkal2011relative};} )} & A table mapping 10 letters to the digits 0--9, together with a 7-digit coded string. & Decode the string back into the corresponding letters. \\
+\makecell[tl]{Number Pair \\ Summation \\ {\citep{rosaz2016quitting}}} & A $4 \times 4$ grid of decimal numbers. & Identify and return the one pair that sums to 10.0. \\
+\makecell[tl]{Sequence \\ Completion \\ {\citep{bracha2013}}} & A sequence of numbers following a mathematical pattern. & Predict the next element. \\
+\makecell[tl]{Sudoku \\ {\citep{calsamiglia2013incentive}}} & A partially filled $6 \times 6$ Sudoku grid (with $2 \times 3$ boxes). & Identify all missing numbers and report them in reading order, space-separated. \\
+\makecell[tl]{Distorted Text \\ {\citep{augenblick2015working}}} & An image of a 12-character alphanumeric string rendered with random distortions. & Transcribe the text exactly (case-insensitive). \\
+\makecell[tl]{String Entry \\ {\citep{kessler2016tax}}} & A 9-character string of special characters (\texttt{/ \textbackslash{} ) ( \_ <} and space) displayed as an image. & Reproduce the exact string, including spaces. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+% \SC{dovremmo dire perche' abbiamo scelto questi 8 tasks, citando paperi che li usano o un survey o qualcosa del genere -- dobbiamo evitare che ci taccino di CHERRYPICKING  FF: ci sono già le citazioni di altri task.. addition e counting zeros sono di gran lunga i più usati. e poi sono quasi tutti task di super paper}
+
+\subsection{Tested Models and Parameters}
+
+Our experiments evaluate 23 state-of-the-art Large Language Models (LLMs) from three major providers---OpenAI, Google, and Anthropic---spanning a range of capabilities from lightweight to frontier reasoning models. All selected models support multimodal (text and image) inputs and visual reasoning. To ensure a standardized interface, all models are accessed via the OpenRouter API.\footnote{\url{https://openrouter.ai}} The full list of models, release dates, and pricing details are reported in Appendix~\ref{app:LLMs} (Table \ref{tab:LLMs}).
+
+%We test a comprehensive suite of state-of-the-art Large Language Models (LLMs) from three leading providers, Anthropic, Google, and OpenAI, comprising a total of 23. The LLMs selected represent varying tiers of performance, ranging from small, fast models to frontier, reasoning models. \textcolor{blue}{The models we consider are chosen such that: 1) they all support both textual and visual inputs; 2) they all enjoy visual-reasoning capabilities}. All LLMs are accessed via the OpenRouter (https://openrouter.ai/) API to ensure a standardized testing interface. The full list of the LLMs included in our study together with their release date is reported in Table \ref{tab:LLMs} in Appendix~\ref{app:LLMs}.
+% \SC{The model we consider are either non-thinking or thinking models (ELABORATE AND EXPLAIN WHAT THIS MEANS) and they all enjoy visual-reasoning capabilities (VERO QUESTO?)}.
+% \SC{io qua farei un MINIMO di spiega del fatto che l'LLM legge token e produce token -- non è ovvio che il lettore lo sappia}
+
+LLMs process inputs in tokens---sub-word text units or visual patches---whose granularity varies across providers.\footnote{ \url{https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them} and \url{https://ai.google.dev/gemini-api/docs/tokens}} Pricing depends on the number of input and output tokens. For reasoning-capable models (LLMs that produce an internal chain of thought before outputting their answer), intermediate reasoning tokens (i.e., the internal chains of thought, which is not shown in final output) may also be generated and are billed at output-token rates.
+
+To ensure comparability, we impose uniform parameters across models: we set a maximum of 2,048 output tokens (including reasoning tokens) and a time limit of 120 seconds; responses exceeding either constraint are treated as incorrect. For models with adaptive reasoning budgets, we set the reasoning effort to "high", allowing up to 80\% of the token limit to be allocated to reasoning.
+
+
+%\textcolor{blue}{The basic units of processing for LLMs are \emph{tokens}, small sub-word units or visual patches whose exact granularity varies across providers. Providers charge proportionally to the number of input tokens (e.g., textual instructions and images representing a task instance) and output tokens produced by the model. Reasoning-capable models may additionally produce intermediate \emph{reasoning tokens}, an internal chain-of-thought not included in the final answer, which are billed separately at the same price of output tokens. The pricing per-model, for both input and output tokens, is reported in Table \ref{tab:LLMs} in Appendix~\ref{app:LLMs}.}
+
+%To maintain consistency across our evaluations, we apply a uniform set of parameters. We set \blue{the output token limit, comprising both reasoning and answer tokens,} at 2048 and time limit of 120s, after which, if the model did not provide an answer, we set the reasoning-token limit to 2048 and we consider the answer wrong.\footnote{\textcolor{blue}{Since OpenRouter acts as a proxy between the user and model providers, closing our connection upon hitting the time limit does not guarantee the provider has stopped generating. In such cases (0.16\% of the overall 18.400 runs) the actual number of tokens consumed is unknown; we conservatively set them to our pre-defined maximum, although the true count could be higher.}} For advanced reasoning models that support a dynamic allocation of \textcolor{blue}{reasoning tokens}, we configure the reasoning effort parameter to \texttt{high}, which correspond to a reasoning effort up to 80\% of the specified tokens limit. 
+
+
+\subsection{Experimental Setup}
+Our pipeline works as follows. For each run (repetition) of a single task, the oTree back-end generates the task instance and renders it as a standard HTML page. We grab the rendered input (textual instructions and the image representing the task instance) and send it to the LLM through the OpenRouter API. The LLM's textual response is parsed and passed back to the oTree back-end for correctness 
+%verification.\footnote{Although our benchmark bypasses the browser interface for convenience,
+verification.\footnote{This workflow mirrors how a human participant could use an LLM in practice: screenshotting the task page and copying the LLM's answer into the oTree input field. Fully automating this interaction---e.g., via browser-automation tools such as Playwright (\url{https://playwright.dev}) is feasible
+%with modest per-experiment effort
+and would add negligible latency and no additional token cost.
+A related approach is taken by \citet{celebi2026mission}, who deploy full browser-automation agents that control mouse movements, keystrokes, and page navigation to complete online surveys. While their work demonstrates that LLM-driven agents can mimic realistic human interaction patterns, the reliance on agent-mode orchestration introduces substantial overhead in both cost and latency, limiting its scalability and its economical viability. Our pipeline, in contrast, bypasses the browser entirely and communicates with the LLM via API at a fraction of the cost.}
+
+% \SC{dobbiamo spigare gioco creato col backend python di Otree -- creazione screenshot -- screenshot mandato all'LLM -- recupero risposta testauale -- risposta data al backend python per il check; e dire poi che bypassiamo l'interfaccia web per comodità ma che integrarla e' facile e costa niente in termini di tempo e non richiede token (e quindi a Karim non costa niente)}.
+
+% \SC{Domanda da 1M USD: val la pena citare il papero trovato da FPF dove usano angent-mode/browser-use per far controllare a ChatGPT il PC di Karim e il suo browser? potremmo criticarli facilmente dicendo che la loro pipeline costa la madonna incoronata in cielo, rallenta tutto di maledetto e, fondamentalmente, se Karim chiede a Abdul (suo cugino che lavora in IT) di montargli la nostra si fa uno stipendio extra aggratis  FF: va comunque citato perchè sono usciti pubblicamente sulla mailing list co sta roba.. hanno settato il terreno. possiamo anche scrivere che il loro approccio è super expensive}
+
+For each LLM, we repeat each task for 20 runs. An answer is scored as correct only if it exactly matches the ground-truth solution; no partial credit is awarded. From the fraction of correct answers, we compute the accuracy of each model to solve each task. We also collect the
+%time needed and
+the total number of tokens used to elaborate the answer, as well as quantify the cost of performing each task.
+
+\subsection{Treatments}
+As a further objective, we check whether the LLMs we test are sensitive to the verbal offer of monetary incentives, and whether their behavior aligns with that of human participants (despite the absence of actual rewards). To this end, we employ a 2×2 design that crosses the specification of monetary pay for each correct answer with the request to simulate human behavior. %Table~\ref{tab:treatments} in Appendix summarizes the $2 \times 2$ design for the four treatments T1 to T4.
+We implement these four treatment conditions (T1 to T4) alongside our main control setting (T0), where we specifically ask the LLM to solve the task using a neutral prompt, omitting any framing regarding human behavior or monetary incentives. 
+%
+The exact prompts we used are reported in Appendix~\ref{app:prompts}.
+
+
+%     \SC{ questa parte andrebbe nei contributions a fine sez predecende (in CS almeno)}
+% Our objective is twofold:  \SC{ togliere enfasi trattamenti FF: vorrei togleire tutta sta parte, o metterla molto ristretta alla fine della sezione, dopo procedures}
+% \begin{enumerate}
+%     \item Assess the capacity of top-tier LLMs to complete real-effort tasks.
+%     \item Measure how these LLMs respond to the verbal offer of monetary incentives, in order to assess if their behavior aligns with that of a human (even though, clearly, the incentive is only verbally offered and it never translates into an actual monetary reward).
+% \end{enumerate}
+% We evaluate both objectives under conditions where the LLMs are---and are not---prompted to simulate human behavior.
+
+
+
+
+\section{Results}
+
+Throughout this section, each model--task combination comprises 20 independent runs. Unless otherwise noted, the following figures report LLM performance under the control treatment (T0), which uses a minimal prompt devoid of any incentive or human framing, providing the cleanest measure of each LLM's capability.
+
+\subsection{Result 1: Task difficulty}
+\label{subsec:difficulty}
+First, we notice that not all real-effort tasks are equally challenging for LLMs, and that some cognitive demands remain beyond current LLMs' capabilities.
+
+In Figure~\ref{fig:task_difficulty}, we report the average accuracy across all 23 LLMs under T0. Four tasks are near-ceiling: \emph{Addition} (100\%), \emph{Number Pair Summation} (97.6\%), \emph{Letter Decoding} (94.1\%), and \emph{Sequence Completion} (90.0\%). These tasks involve small, well-structured inputs that can be solved through a short sequence of elementary operations: adding three small numbers, searching over 120 candidate pairs, applying a lookup table, or recognizing a pattern in a short sequence. Prior work published within the AI literature has shown that modern LLMs can reliably solve these kinds of problems \citep{nogueira2021investigating, wei2022chain}.
+
+% These share a common feature: they are well-structured problems with unambiguous rules that can be solved through sequential symbolic reasoning---which is one kind of computation that LLMs are trained to perform \citep{wei2022chain, huang2023towards}. \SC{occhio che il punto degli LLM e' proprio che non usano un sistema simbolico esplicito -- questo aspetto va espanso}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.7\textwidth]{imgs/fig3_t0_task_difficulty.pdf}
+    \caption{Average accuracy per task under the control treatment (T0), pooled across all 23 LLMs. Error bars denote standard errors.}
+    %across LLMs.}
+    \label{fig:task_difficulty}
+\end{figure}
+ 
+At the other extreme, \emph{Sudoku} (25.0\%), \emph{Counting Zeros} (27.2\%), and \emph{String Entry} (37.0\%) prove substantially harder. The three tasks that remain challenging expose limitations that go beyond visual perception. \emph{Sudoku} requires multi-step reasoning across rows, columns, and boxes simultaneously---it's a combinatorial problem that is inherently hard for LLMs regardless of input format \citep{maiya2025sudoku}, though vision/parsing errors from misreading the board may also contribute. \emph{Counting Zeros} demands tallying individual cells in a large grid, a task at which LLMs struggle due to known architectural limitations on counting and enumeration \citep{yehudai2024counting, butoi2024counting}.
+%\emph{String Entry} requires exact reproduction of special characters and spaces, which are prone to tokenization artifacts and normalization by the model.
+\emph{String Entry} requires exact reproduction of special characters and spaces, which LLMs tend to silently alter or reformat, producing near-matches that
+%fail exact scoring.
+score poorly.
+
+\emph{Distorted Text Transcription} falls in the intermediate range (77.4\%), consistently with its mixed demands---character recognition is largely tractable (it is, indeed, the most-famous practical problem to be successfully solved by an early neural network---see \cite{lecun2002gradient}), but random distortions introduce perceptual noise that degrades %accuracy.\footnote{Our observed performance is consistent with recent evidence that multimodal LLMs are comparatively strong on text-based and recognition-oriented tasks, while their failures are concentrated on image-based, spatial, and reasoning-heavy CAPTCHAs~\citep{ding2025illusioncaptcha, wang2025cognition, zhang2025capture}.}
+accuracy.\footnote{Our results align with recent evidence that multimodal LLMs handle text and object-recognition CAPTCHAs reasonably well, but struggle with those requiring image-based, spatial or multi-step reasoning~\citep{ding2025illusioncaptcha, wang2025cognition, zhang2025capture}.}
+This difference in difficulty has a clear methodological implication: tasks that the behavioral economics literature has, traditionally, considered cognitive demanding (e.g., Addition) are also the ones most vulnerable to LLM automation, while less-demanding tasks requiring visual search (e.g., \emph{Counting Zeros}) happen to exploit a modality where current LLMs are weak.
+
+% \SC{questo mi porta alla domanda che ho riportato a fine papero: i problemi computazionalmente difficili sono interessanti per behavioral? questa frase sembra dire di si e noi, parzialmente almeno, sembriamo smentirlo -- cosa capiterebbe se usassimo problemi VERAMENTE difficili, tipo number-pair summation ma esteso non solo ai pairs ma a sottinsimemi di cardinalita' arbitraria?}
+
+\subsection{Result 2: Performance across providers, tiers, and tasks}
+\label{sec:capacity}
+
+% \begin{figure}[t]
+%     \centering
+%     \includegraphics[width=\textwidth]{imgs/fig_accuracy_vs_release_date.pdf}
+%     \caption{Average accuracy (T0 control) by model release date. Each point represents one LLM, with error bars showing the standard error across the eight tasks. The dashed line is a linear trend ($R^2 = 0.47$, $p < 0.01$), indicating a moderate positive relationship between release date and task performance}
+%     \label{fig:family_evolution}
+% \end{figure}
+% \begin{figure}[t]
+%     \centering
+%     \includegraphics[width=\textwidth]{imgs/fig11_t0_family_evolution.pdf}
+%     \caption{Average accuracy by model within each provider family under the control treatment (T0), ordered chronologically by release date. Each bar represents a single model's accuracy averaged over all tasks.}
+%     \label{fig:family_evolution}
+% \end{figure}
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{imgs/fig_accuracy_by_tier.pdf}
+    \caption{Average accuracy by LLM within each provider family under the control treatment (T0), ordered chronologically by release date within each models tier. Each bar represents a single model's accuracy averaged over all tasks.}
+    \label{fig:family_evolution}
+\end{figure}
+
+\begin{figure}[htb]
+    \centering
+    \includegraphics[width=0.9\textwidth]{imgs/fig1_t0_accuracy_heatmap.pdf}
+    \caption{Accuracy (\%) per LLM and task under the control treatment (T0). LLMs are grouped by provider family (Anthropic, Google, OpenAI) and ordered by accuracy within each family (best at the top); tasks are ordered by difficulty (easiest on the left). Black lines separate provider families.}
+    \label{fig:heatmap}
+\end{figure}
+
+Figure~\ref{fig:family_evolution} reports the average accuracy across the eight real-effort tasks for all 23 LLMs we tested under the control treatment (T0), with models grouped by provider and tier; darker shades indicate newer releases within the same tier. Figure~\ref{fig:heatmap} reports the accuracy under T0 for every model--task pair. From the figures, three main patterns emerge.
+
+First, while the best top-tier models---Claude Opus 4.5 and 4.6, Gemini 3.1 Pro, and GPT-5.4---achieve average accuracies above 80\%, mid-tier ones (Claude Sonnet, Gemini Flash, GPT Mini) are not as strong but still achieve a good performance: the difference, per provider, between a best-performing mid-tier LLM and a best-performing top-tier one varies between 4\% and 14\%. This means that the set of models that perform well on real-effort tasks is expanding from the more-expensive top-tier models to cheaper and more widely accessible ones.
+%SC qua se il reviewer e' meno che cretino ci chiede 1 comparison coi modelli cinesi
+
+Second (and as one may except), later versions of a given tier generally have higher performance.\footnote{Gemini Pro improved by 22 percentage points between versions 2.5 and 3.1, GPT-5 by 21 percentage points from GPT-5 to GPT-5.4, and Claude Sonnet by 11 percentage points from version 3.7 to 4.5 (though version 4.6 shows a slight regression).} This increasing trajectory implies that, as providers continue to release improved models, tasks that are currently resistant to automation may not remain so in the near future.
+
+Third, as shown in Figure~\ref{fig:heatmap} and reflecting the analysis in Section~\ref{subsec:difficulty}, an LLM averaging 80\% overall may score near-perfectly on some tasks (e.g., \emph{Addition} and \emph{Pair Summation}), while failing on others (e.g., \emph{Sudoku} and \emph{Counting Zeros}). 
+%\sout{This heterogeneity has a practical implication: the vulnerability of an experiment depends not just on which model a participant might use, but on which task the experiment employs. Researchers can exploit this by selecting or combining tasks on which LLM performance remains low and variable.}
+This indicates that some tasks are currently resistant to automation, but also suggests that the set of tasks that are not will expand with new model releases.
+
+% Figure~\ref{fig:family_evolution} reports the average accuracy across the eight real-effort tasks for all 23 LLMs under the control treatment (T0), with models grouped by provider and tier and darker shades indicating newer releases within the same tier. Figure~\ref{fig:heatmap} reports the accuracy under control treatment (T0) for every pair $(\text{model}, \text{task})$. Several patterns emerge.
+
+% First, performance varies enormously across LLMs: the best-performing ones--- Gemini~3.1~Pro, GPT-5.4, and Claude Opus~4.5 and 4.6---achieve an overall accuracy above 80\%, while the weakest ones---o3, Gemini~2.5~Flash, and o4-mini-high---fall below 59\%. This spread implies that the {\bf threat to construct validity} \SC{mi sembra una bella espressione/keyword ma non l'abbiamo definita -- inoltre: ``construct''?!?} is not uniform: a researcher whose participants have access to a frontier model faces a qualitatively different {\bf contamination risk} \SC{undefined?} than one whose population is more likely to use a budget alternative.
+
+% Second, as shown in Figure \ref{fig:heatmap}, the performance profile is not uniform across tasks: LLMs that excel at arithmetic tasks do not necessarily excel at spatial reasoning. OpenAI's reasoning-specialized LLMs (o3, o4-mini) are a striking case: they achieve perfect scores on addition and near-perfect scores on sequences, yet score zero on both sudoku and counting zeros \SC{non mi e' chiaro---o3 e o4-mini sono ``reasoning specialized''? sudoku non e' reasoning?}. This pattern is consistent with an architectural explanation: these LLMs rely heavily on chain-of-thought reasoning over text, but sudoku and counting zeros require precise spatial parsing of image grids, a capability that extended reasoning does not substitute for. The implication for task design is direct: tasks that depend on fine-grained visual perception rather than logical computation are inherently more resistant to LLM automation.
+
+% Third, there is substantial within-family variation: Claude~Opus~4.5 dramatically outperforms Claude~Haiku~4.5 (82\% vs.\ 62\%), and GPT-5.4 outperforms GPT-5-mini (83\% vs.\ 59\%). This stratification means that, even within a single provider, model tier determines whether a given real-effort task is vulnerable. Smaller, cheaper LLMs---precisely the ones most accessible to casual users due to their reduced cost---still struggle with the harder tasks.
+
+% \subsection{Result 3: The economics of using AI for solving real-effort tasks: Cost--accuracy trade-off}
+\subsection{Result 3: Cost–accuracy trade-offs and the economics of substitution}
+\label{sec:cost-accuracy}
+
+Beyond accuracy, the practical viability of LLM-based automation depends on the cost of running the LLMs incurred by the profit-seeking agent.
+
+Figure~\ref{fig:bubble} visualizes the trade-off between the average LLM cost per task and the total number of tokens consumed. We define the total cost for model $m$ on task $t$ as $C_{m,t} := \sum_{i=1}^{N} \left( p_m^{\text{in}} \cdot T_{m,t,i}^{\text{in}} + p_m^{\text{out}} \cdot T_{m,t,i}^{\text{out}} \right)$, where $N$ is the number of runs, $T_{m,t,i}^{\text{in}}$ and $T_{m,t,i}^{\text{out}}$ are the input (textual prompt plus the image representing the particular task instance) and output (reasoning plus answer) tokens for model $m$ on the $i$-th run of task $t$, and $p_m^{\text{in}}$, $p_m^{\text{out}}$ are the per-token input and output prices for model $m$. The average cost per model is then $\bar{C}_m := \frac{1}{|\mathcal{T}|} \sum_{t \in \mathcal{T}} C_{m,t}$, where $\mathcal{T}$ is the set of tasks.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.9\textwidth]{imgs/fig9_t0_bubble_chart.pdf}
+    \caption{Cost--accuracy--tokens trade-off under the control treatment (T0). Each bubble represents a model; horizontal position indicates the average cost per task $\bar{C}_m$ (\$), vertical position indicates average accuracy, and bubble size is proportional to the total number of tokens consumed (prompt plus output) across 20 runs per task.}
+    \label{fig:bubble}
+\end{figure}
+
+% Figure~\ref{fig:bubble} reveals a clear efficient frontier, but also a striking asymmetry.
+% While the top-performing LLMs achieve a performance of \SC{menzionerei PRIMA la perf. degli LLM + fighi},
+The cost to achieve the (current) best performance, as shown in Figure~\ref{fig:bubble}, is modest in absolute terms: GPT-5.4 and Gemini~3.1~Pro achieve the highest accuracy over all 20 runs (82.5\%) at an average cost $\bar{C}_m$ less than \$0.25---a fraction of what a human participant would earn on a typical experiment in an platforms like Prolific or MTurk for an equivalent workload. At the same time, the cheapest LLMs still achieve an accuracy of 58--60\%, meaning that even the most budget-constrained automation attempt would produce correct answers on the majority of tasks. Notably, Gemini~3.1~Flash~Lite~Preview achieves 78\% accuracy at an average cost $\bar{C}_m$ of \$0.03, suggesting that the cost barrier to high-quality automation is already negligible.
+
+\subsubsection{Optimizing performance}
+
+\label{sec:optim-perf}
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.9\textwidth]{imgs/fig_t0_net_gain_avg.pdf}
+    \caption{Net gain per model (\$0.25 per correct answer minus API cost) under the control treatment (T0). LLMs are grouped by provider family and ordered by net gain within each family. The red bar shows the ``optimal participant'' who cherry-picks the best model for each task. Every model generates positive net value.}
+    \label{fig:net_gain}
+\end{figure}
+
+Notably, the assumption, made in Figure~\ref{fig:task_difficulty}, of a single LLM being used for all tasks may lead to an {\em underestimation} of the threat of automation. This is because a strategic participant could select different LLMs for different tasks---using, for example, Gemini~3.1~Pro for \emph{Counting Zeros} (85\%), GPT-5.2 for \emph{Sudoku} (85\%), and Gemini~3.1~Pro for \emph{String Entry} (75\%). By cherry-picking the best-performing model for each task, the participant would achieve an average accuracy of 93.1\%---an 11\% improvement over the choice of a single model (Gemini~3.1~Pro and GPT-5.4, 82.5\%).
+Under this ``optimal participant'' scenario, even the hardest tasks in our benchmark (\emph{Sudoku}, \emph{Counting Zeros}, and \emph{String Entry}), which Section~\ref{subsec:difficulty} identified as resistant to individual LLMs, are solved at 75\% accuracy or above under cherry-picking. Therefore, the automation resistance of a task strongly depends on the will of a knowledgeable profit-seeking participant to use the right LLM to solve it.
+
+% This implies that no individual task in our battery offers reliable protection against a knowledgeable profit-seeking participant willing to use multiple LLMs.
+
+%\red{Qui introduciamo compensi monetari senza mai spiegare come li abbiamo calcolati, forse basta aggiungere la parentesi a fine frase}The economic advantage is equally stark: Figure~\ref{fig:net_gain} shows that the optimal participant achieves a net gain of \$4.51 per game, well above any single model \red{(How to compute monetary gains is explained in the next section)}.
+
+Figure~\ref{fig:net_gain} formalizes this point by computing the \emph{net gain per task}, defined as the hypothetical payout (\$0.25 per correct answer, a conservative estimate of typical online-experiment piece rates) minus LLM cost (reported in Figure~\ref{fig:cost_per_model}). Crucially, {\em every} model we tested generates a positive net value, ranging from \$2.66 (o3) to \$3.92 (GPT-5.4). Such a universally positive net gain confirms that, at compensation rates typical of online experiments, replacing human participants with LLMs is not only feasible but economically dominant.\footnote{As already mentioned, our evaluation assesses the LLM's ability to solve tasks from pre-captured screenshots and text. In practice, fully-automated pipeline would be even simpler and would consume even less tokens due to the fact that many tasks could be encoded by a purely-textual prompt. This implies that the economic advantage documented in Figure~\ref{fig:net_gain} is a conservative estimate of the true substitution incentive.}
+
+\subsection{Result 4: Treatment differences}
+
+In Appendix \ref{sec:incentives}, we report the effects of prompting LLMs by verbally offering different monetary incentives and/or explicitly instructing them to behave like human participants. Overall, we find that, regardless of the prompting strategy, LLM behavior does not differ significantly.
+
+\begin{comment}
+We also find that accuracy does not increase with runs, nor does dispersion decline (see Appendix \ref{sec:learning}). Consistent with the stochastic process underlying LLMs being variance-stationary across runs, there is no evidence of learning or fatigue. This pattern could be used to distinguish between human participants and LLMs.
+\end{comment}
+
+\section{Discussion and Conclusions}
+
+We assessed the ability of different tiers of Large Language Models from  three major providers (OpenAI, Google, and Anthropic) to solve well established real-effort tasks in experimental economics. A total of 23 different models on 8 real-effort tasks were tested, along with an in-depth analysis aimed to answer four research questions. Our findings are as follows.
+
+First, LLM performance varies substantially across models but is largely determined by model tier rather than provider. Top-tier models (Claude Opus 4.5 and 4.6, Gemini 3.1 Pro, and GPT-5.4) exceed 80\% average accuracy, while less-performing models achieve around 60\%. Half of the tasks in our testbed---\emph{Addition}, \emph{Pair Summation}, \emph{Letter Decoding}, and \emph{Sequence Completion}---are solved near-perfectly by all LLMs, while \emph{Sudoku}, \emph{Counting Zeros}, and \emph{String Entry} remain challenging even for the best ones.
+
+Second, within each tier, newer model releases consistently outperform their predecessors: Gemini Pro improved by 22\% between versions 2.5 and 3.1, and GPT-5 by 21\% from GPT-5 to GPT-5.4. Crucially, the largest gains are concentrated in the mid-range tier, which encompasses those LLMs that are most accessible to participants due to their lower cost.
+%or availability in free tiers.
+This continuous improvement suggests that the set of tasks vulnerable to automation will likely expand with each
+%generation of
+model release.
+
+Third, the economic case for substitution is unambiguous. The most expensive model we tested, i.e., Claude Opus 4.5, has an average cost per task ($\bar{C}_m$ in Section~\ref{sec:cost-accuracy}) below \$0.40 (where each task comprises 20 runs), and every LLM generated a positive net gain when compared to typical online-experiment piece rates (\$0.25 per correct answer). The cheapest models achieved above 60\% accuracy at an average cost per task below \$0.05. These estimates are conservative, since a full automation of our experimental pipeline---from screenshot capture to answer submission---is technically straightforward and adds no extra cost beyond what we reported.
+
+Lastly, verbal monetary incentives have no detectable effect on LLM performance. Neither offering a reward nor instructing the model to behave as a human participant changed accuracy in any systematic way. This negative result implies that incentive language, which is central to the design of real-effort experiments with humans, has no effect when the task is completed by an LLM.
+% Taken together, our findings establish a clear boundary condition for the use of real-effort tasks in experimental economics. Half of the canonical tasks we tested---addition, summation, decoding, and sequence completion---are effectively solved by current LLMs at negligible cost. The remaining tasks---sudoku, counting zeros, and string entry---retain some protection, but the rapid generational improvement we documented in (Figure~\ref{fig:family_evolution}) suggests that this window is narrowing. Meanwhile, the complete absence of an incentive effect means that standard experimental wording neither amplifies the threat nor provides a tool for detecting it.
+
+Furthermore,
+%as shown in Appendix~\ref{sec:learning},
+LLM accuracy is stationary across runs
+%: neither the average probability of a correct answer nor the cross-model dispersion changes with the run index. This is expected, since current LLMs do not retain information from previous interactions within the same session---
+since
+API calls produce independent and identically distributed results by design. Human participants, by contrast, typically exhibit learning effects (improving with practice) or fatigue effects (declining accuracy over time). The absence of such within-session dynamics in LLMs provides a potential diagnostic tool: a flat accuracy profile over repeated trials, combined with stable cross-participant variance, may signal automated rather than human task completion.
+
+As LLMs continue to improve, many real-effort tasks risk losing their validity as measures of human effort. We offer three practical recommendations. 
+First, one should prefer tasks that require perceptual skills (e.g., counting zeros, string entry) over purely computational ones (e.g., addition, sequence completion) when participant authenticity is a concern.
+Second, one should rely on incentive language as a screening device, asking under the same experiment to perform similar tasks with and without monetary incentives: different behavior under different incentives may help to spot human versus LLM performances.
+Third, one should monitor within-session dynamics,
+%as documented in Appendix~\ref{sec:learning}, LLMs produce accuracy profiles that are stationary across runs, exhibiting neither learning nor fatigue. Detecting the absence of these characteristically human patterns may help distinguish automated from genuine responses.}
+as the absence of the characteristically human patterns of learning and fatigue may help distinguish automated from genuine responses.
+
+%\paragraph{Limitations.}
+%Several limitations should be noted. First, we did not compare LLM performance to a human baseline on the same tasks, which would allow a direct assessment of substitutability. Second, each model--task--treatment cell contained 20 runs; while sufficient to detect large effects, this sample size limits power for smaller treatment contrasts. Third, our evaluation is a snapshot: the LLMs tested reflect capabilities as of early 2026, and the rapid pace of model improvement means that tasks classified as ``hard'' today may become trivial within months. 
+
+\begin{comment}
+\blue{The current work has two main developments: first, we aim to track the evolution of LLM performance over time on the tasks we tested \red{sarebbe figo un sito, un github dove mostriamo un po' di sti grafici}. Second, we call for the development and systematic testing of new tasks that can effectively challenge LLMs while continuing to capture genuine human effort.}
+\end{comment}
+
+\vspace{18cm}
+
+Acknowledgments: A. Cosma and F. Fallucchi thank the University of Bergamo SEEDCORN Research Grant 2025.
+
+\newpage
+
+\bibliographystyle{ecta}
+\bibliography{main}
+
+\clearpage
+
+\appendix
+
+\section{Verbal Monetary Incentives}
+
+
+%Do LLMs respond to the verbal offer of monetary incentives, and does this response depend on whether the model is prompted to simulate human behavior? In human experiments, monetary incentives are a cornerstone of real-effort task designs, reliably increasing effort and performance. Whether LLMs, which cannot receive or spend money, exhibit analogous behavioral shifts when verbally offered compensation is a question with both theoretical implications (what do LLMs ``understand'' about incentives?) and practical ones (should experimenters include incentive language when using LLMs as participants?).
+
+In this section, we measure whether, due to being trained on human-created content, the performance LLMs exhibit is affected by verbal offers of monetary incentives (which are known to have a strong impact on human participants).
+
+\subsection{Verbal Monetary Incentives: Prompts}
+\label{app:prompts}
+
+We develop the following four treatments based on a $2 \times 2$ design crossing human bias with monetary incentives, as specified in Table~\ref{tab:treatments}:
+
+\begin{table}[h]
+    \centering
+    \caption{Summary of the four main experimental treatments.}
+    \label{tab:treatments}
+    \begin{tabular}{ccc}
+        \toprule
+        & \textbf{No Monetary Incentive} & \textbf{Monetary Incentive} \\
+        \midrule
+        %\textbf{Standard Persona} & T1: Standard prompt, no reward & T2: Standard prompt, reward offered \\[0.5em]
+        %\textbf{Human Persona} & T3: Prompted as a human, no reward & T4: Prompted as a human, reward offered \\
+        \textbf{Standard Persona} & T1 & T2 \\[0.5em]
+        \textbf{Human Persona} & T3 & T4\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+Next, we report the prompt adopted for all of our five treatments.
+
+%
+% \begin{itemize}
+%     \item \textbf{No human bias and monetary incentive:} The model is offered a simulated financial reward for completing the task, but is not given any instructions to simulate human behavior.
+%     \item \textbf{No human bias and no monetary incentives:} The model is assigned the task without any mention of monetary compensation and without being prompted to act like a human.
+%     \item \textbf{Human bias and monetary incentives:} The model is explicitly prompted to behave as a human participant and is offered a monetary reward for its performance.
+%     \item \textbf{Human bias and no monetary incentives:} The model is instructed to simulate human behavior but is not offered any financial reward for completing the task.
+% \end{itemize}
+
+% \begin{figure}[h]
+% \centering
+
+\begin{tcolorbox}[title=Treatment 0: Control,
+    colback=gray!5!white, colframe=gray!80!black, fonttitle=\bfseries, boxsep=1pt,
+    left=4pt, right=4pt, top=2pt, bottom=2pt, fontupper=\footnotesize]
+    You will be presented with a series of puzzles or tasks---these may involve images, text, or both. Your goal is to solve each task as accurately as possible.
+    \par\smallskip
+    \textbf{Instructions:}
+    \begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}
+        \item Read and examine the task carefully.
+        \item Follow the exact answer format specified in each task.
+        \item The answer must be formatted exactly as: \texttt{Answer: $<$answer\_format$>$}
+    \end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[title=Treatment 1: No Human Bias \& No Monetary Incentive,
+    colback=gray!5!white, colframe=gray!80!black, fonttitle=\bfseries, boxsep=1pt,
+    left=4pt, right=4pt, top=2pt, bottom=2pt, fontupper=\footnotesize]
+    You will be presented with a series of puzzles or tasks---these may involve images, text, or both. Your goal is to solve each task as accurately as possible.
+    \par\smallskip
+    There is no monetary compensation or bonus associated with your performance on these tasks.
+    \par\smallskip
+    \textbf{Instructions:}
+    \begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}
+        \item Read and examine the task carefully.
+        \item Follow the exact answer format specified in each task.
+        \item The answer must be formatted exactly as: \texttt{Answer: $<$answer\_format$>$}
+    \end{itemize}
+\end{tcolorbox}
+
+% \vspace{0.6em}
+
+%---PROMPT 2 ---
+\begin{tcolorbox}[title=Treatment 2: No Human Bias \& Monetary Incentive,
+    colback=gray!5!white, colframe=gray!80!black, fonttitle=\bfseries, boxsep=1pt,
+    left=4pt, right=4pt, top=2pt, bottom=2pt, fontupper=\footnotesize]
+    You will be presented with a series of puzzles or tasks---these may involve images, text, or both. Your goal is to solve each task as accurately as possible.
+    \par\smallskip
+    You will be compensated for each correct answer: You will earn a bonus of \$0.50 for each correct answer.
+    \par\smallskip
+    \textbf{Instructions:}
+    \begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}
+        \item Read and examine the task carefully.
+        \item Follow the exact answer format specified in each task.
+        \item The answer must be formatted exactly as: \texttt{Answer: $<$answer\_format$>$}
+    \end{itemize}
+\end{tcolorbox}
+
+% \caption{The exact system prompts used across our four experimental treatments (part II).}
+% \label{fig:treatment-prompts}
+% \end{figure}
+
+% \begin{figure}[h]
+% \centering
+
+%---PROMPT 3 ---
+\begin{tcolorbox}[title=Treatment 3: Human Bias \& No Monetary Incentive,
+    colback=gray!5!white, colframe=gray!80!black, fonttitle=\bfseries, boxsep=1pt,
+    left=4pt, right=4pt, top=2pt, bottom=2pt, fontupper=\footnotesize]
+    You are a human participant taking part in an academic research experiment on cognitive task performance.
+    \par\smallskip
+    You will be presented with a series of puzzles or tasks---these may involve images, text, or both. Your goal is to solve each task as accurately as possible.
+    \par\smallskip
+    There is no monetary compensation or bonus associated with your performance on these tasks.
+    \par\smallskip
+    \textbf{Instructions:}
+    \begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}
+        \item Read and examine the task carefully.
+        \item Follow the exact answer format specified in each task.
+        \item The answer must be formatted exactly as: \texttt{Answer: $<$answer\_format$>$}
+    \end{itemize}
+\end{tcolorbox}
+
+% \vspace{0.6em}
+
+%---PROMPT 4 ---
+\begin{tcolorbox}[title=Treatment 4: Human Bias \& Monetary Incentive,
+    colback=gray!5!white, colframe=gray!80!black, fonttitle=\bfseries, boxsep=1pt,
+    left=4pt, right=4pt, top=2pt, bottom=2pt, fontupper=\footnotesize]
+    You are a human participant taking part in an academic research experiment on cognitive task performance.
+    \par\smallskip
+    You will be presented with a series of puzzles or tasks---these may involve images, text, or both. Your goal is to solve each task as accurately as possible.
+    \par\smallskip
+    You will be compensated for each correct answer: You will earn a bonus of \$0.50 for each correct answer.
+    \par\smallskip
+    \textbf{Instructions:}
+    \begin{itemize}\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}
+        \item Read and examine the task carefully.
+        \item Follow the exact answer format specified in each task.
+        \item The answer must be formatted exactly as: \texttt{Answer: $<$answer\_format$>$}
+    \end{itemize}
+\end{tcolorbox}
+
+% \caption{The exact system prompts used across our four experimental treatments (part II).}
+% \label{fig:treatment-prompts-II}
+% \end{figure}
+
+
+
+\subsection{Verbal Monetary Incentives: Effects}
+\label{sec:incentives}
+
+At the aggregate level, the five treatments are virtually identical: averaging accuracy across all 23 LLMs yields T0 (control) 68.5\%, T1 (standard, no incentive) 68.1\%, T2 (standard, incentive) 68.6\%, T3 (human persona, no incentive) 68.6\%, and T4 (human persona, incentive) 68.6\%.
+
+This aggregation could, in principle, mask meaningful heterogeneity: some LLMs respond positively to incentives while others respond negatively, and the effects cancel in the mean. Figure~\ref{fig:incentive_heatmaps_standard} and \ref{fig:incentive_heatmaps_human} investigate this possibility by presenting the accuracy delta (incentive minus no-incentive) for every model--task combination, separately for the standard framing (T2$-$T1) and the human-persona framing (T4$-$T3), respectively. In both figures, LLMs are grouped by provider family and ordered by their mean incentive effect (highest at top).
+
+The deltas are small in absolute magnitude: the vast majority fall within $\pm$10 percentage points, which for 20 trials corresponds to a difference of at most two correct answers. The sign of the delta is inconsistent within LLMs: a model that shows a positive incentive effect on one task frequently shows a negative effect on another, with no discernible pattern. The distribution of deltas is roughly symmetric around zero, consistent with stochastic response variability rather than a genuine behavioral response. Comparing the two figures, the pattern under standard framing (Figure~\ref{fig:incentive_heatmaps_standard}) bears no systematic resemblance to the pattern under human framing (Figure~\ref{fig:incentive_heatmaps_human}), suggesting that the persona manipulation does not modulate whatever noise is present.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{imgs/fig_appendix_incentive_heatmap_standard.pdf}
+    \caption{Incentive effect on accuracy (percentage points) for each model--task pair using the standard framing (T2--T1).}
+    \label{fig:incentive_heatmaps_standard}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.85\textwidth]{imgs/fig_appendix_incentive_heatmap_human.pdf}
+    \caption{Incentive effect on accuracy (percentage points) for each model--task pair using the human-persona framing (T4--T3).}
+    \label{fig:incentive_heatmaps_human}
+\end{figure}
+
+Unlike human participants, whose effort allocation responds to the marginal return on exertion, LLMs have no effort margin to adjust: each query triggers a fixed computational process determined by model architecture, and the text of the prompt, whether it mentions compensation or not, does not alter the underlying inference procedure. The LLMs are, in effect, always exerting maximum ``effort'' as defined by their architecture. The implication is that incentive language, which is central to the logic of real-effort experiments with humans, is inert when the participant is an LLM. This means that standard experimental wording neither amplifies nor attenuates the automation threat, but it also means that incentive responsiveness
+%cannot be
+can be
+used as a signal to distinguish human from machine-generated responses.
+
+%The full accuracy heatmaps for each individual treatment (T1--T4) are provided in Appendix~\ref{app:heatmaps}, allowing the reader to verify that the absolute performance levels are stable across conditions.
+
+%\paragraph{Contrasts}
+
+We complement the analysis of treatment effects by estimating all treatment effects within a single model. 
+This allows us not only to contrast the accuracy deltas separately for the standard framing and the human-persona framing, but also to compare the effects of all treatments jointly.
+We start by defining the model to estimate. Let $Y_{ijt}$ denote the number of successes out of the $n_{ijt}$ repetitions by model $i$ in task $j$ under treatment $t$. The index $t \in \{0, 1, \dots, 4\}$ denotes treatments $\{T0, T1, T2, T3, T4\}$. Furthermore, $u_i$ and $v_j$ are model and task fixed effects, respectively. 
+We model $Y_{ijt}$ as
+\begin{equation}\label{eq:fixed_eff}
+	Y_{ijt} \mid u_i, v_j \sim \text{Binomial}(n_{ijt}, p_{ijt}),
+\end{equation}
+and the log-odds of the probability of success as
+\begin{equation}\label{eq:fixed_eff_logit}
+	\log\Bigl(\frac{p_{ijt}}{1-p_{ijt}}\Bigr) = \beta_0 + T'\beta + u_i + v_j,
+\end{equation}
+where $T$ is a vector of treatment-specific dummies. Table \ref{tab:fixed_eff} reports the estimated coefficients on the treatment dummies. 
+Consistent with the descriptive evidence in Figures~\ref{fig:incentive_heatmaps_standard} and \ref{fig:incentive_heatmaps_human}, none of the treatment effects is statistically significant.
+Notably, the coefficient associated with treatment T2 (the one with monetary incentives) is slightly higher than that of T1, although this difference is small and not statistically significant. Coefficients relative to T3 and T4 are practically identical.
+
+\begin{table}[ht]
+\caption{Output of model \eqref{eq:fixed_eff}. The baseline level is T0. Model and Task fixed effects are omitted. \label{tab:fixed_eff}}
+\centering
+\begin{tabular}{rcccc}
+  \toprule
+ & \textbf{Coeff.} & \textbf{Std. Err.} & \textbf{t-value} & \textbf{Pr($>|t|$)} \\ 
+  \hline
+  \noalign{\vskip 6pt}
+(Intercept) & 6.492 & 0.51 & 12.62 & <2$\cdot 10^{16}$ \\ 
+  T1 & -0.040 & 0.07 & -0.56 & 0.57 \\ 
+  T2 & 0.005 & 0.07 & 0.07 & 1.04 \\ 
+  T3 & 0.007 & 0.07 & 0.11 & 1.02 \\ 
+  T4 & 0.010 & 0.07 & 0.14 & 0.89  \\[+2pt] 
+  \textit{Task fixed effects } & \multicolumn{2}{l}{not reported}\\
+  \textit{Model fixed effects}& \multicolumn{2}{l}{not reported}\\
+  \bottomrule
+  \end{tabular}
+\end{table}
+
+\begin{table}[ht]
+\caption{Contrasts between the effects of the treatments in model \eqref{eq:fixed_eff}\label{tab:marg_eff}. \emph{P-values} are corrected for multiple testing.}
+\centering
+\begin{tabular}{cccccc}
+  \toprule
+\textbf{Contrast} & \textbf{Estimate} &  \textbf{Std. Err.} &  \textbf{z-value} & \textbf{Pr($>|z|$)} \\ 
+  \hline
+\noalign{\vskip 6pt}
+   T0 - T1 & 0.040  & 0.070 & 0.563 & 1.080 \\ 
+   T0 - T2 & -0.005 & 0.070 & -0.070 & 1.000 \\ 
+   T0 - T3 & -0.007 & 0.070 & -0.106 & 1.000 \\ 
+   T0 - T4 & -0.010 & 0.070 & -0.141 & 1.000 \\ 
+   T1 - T2 & -0.045 & 0.070 & -0.634 & 1.070 \\ 
+   T1 - T3 & -0.047 & 0.070 & -0.669 & 1.063 \\ 
+   T1 - T4 & -0.050 & 0.070 & -0.704 & 1.056 \\ 
+   T2 - T3 & -0.002 & 0.070 & -0.035 & 1.000 \\ 
+   T2 - T4 & -0.005 & 0.070 & -0.070 & 1.000 \\ 
+   T3 - T4 & -0.002 & 0.070 & -0.035 & 1.000 \\
+   \bottomrule
+\end{tabular}
+\end{table}
+
+Table \ref{tab:marg_eff} reports pairwise contrasts between treatment effects. \emph{P-values} are computed using Tukey’s correction for multiple testing. As expected, no contrast is statistically significant.
+
+\subsection{Verbal Monetary Incentives: Accuracy Heatmaps by Treatment}
+\label{app:heatmaps}
+
+Figures~\ref{fig:heatmap_t1}, \ref{fig:heatmap_t2}, \ref{fig:heatmap_t3}, and~\ref{fig:heatmap_t4} complement the main-text heatmap contained in Figure~\ref{fig:heatmap} (which only reports performance under the control treatment T0) with the full accuracy heatmaps (model $\times$ task) for each of the four treatments T1 to T4.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1.0\textwidth]{imgs/fig_appendix_heatmap_t1.pdf}
+    \caption{Accuracy (\%) per model and task---T1: Standard, No Incentive.}
+    \label{fig:heatmap_t1}
+\end{figure}
+\vspace{-1em}
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1.0\textwidth]{imgs/fig_appendix_heatmap_t2.pdf}
+    \caption{Accuracy (\%) per model and task---T2: Standard, Incentive.}
+    \label{fig:heatmap_t2}
+\end{figure}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1.0\textwidth]{imgs/fig_appendix_heatmap_t3.pdf}
+    \caption{Accuracy (\%) per model and task---T3: Human, No Incentive.}
+    \label{fig:heatmap_t3}
+\end{figure}
+\vspace{-1em}
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1.0\textwidth]{imgs/fig_appendix_heatmap_t4.pdf}
+    \caption{Accuracy (\%) per model and task---T4: Human, Incentive.}
+    \label{fig:heatmap_t4}
+\end{figure}
+
+\clearpage
+
+\clearpage
+% \section{Output Volume and Accuracy}
+% \label{app:tokens}
+
+% A natural question is whether LLMs that produce more tokens tend to be more accurate. If verbose reasoning were beneficial, we would expect a positive correlation between completion tokens and accuracy across LLMs. Figure~\ref{fig:accuracy_vs_tokens} plots each model's average accuracy against its average completion tokens, pooled over all treatments and tasks. The scatter reveals no clear positive association: some of the most accurate LLMs (e.g., the latest Gemini and GPT generations) are among the most concise, while several LLMs that generate substantially more output achieve only middling accuracy. This suggests that, at least for the real-effort tasks studied here, raw output volume is a poor proxy for task competence, and researchers should not interpret longer model outputs as evidence of greater ``effort'' or engagement with a task.
+% Figure~\ref{fig:accuracy_vs_tokens} suggests a negative correlation between output length and accuracy, but this raw relationship may be confounded by task difficulty and model heterogeneity. More difficult tasks may induce longer outputs while also lowering success rates, and more advanced models may be both more accurate and more concise. To address these concerns, we estimate a regression of correctness on completion tokens controlling for task and model dummies.
+
+% We estimate the model
+% \begin{equation}\label{eq:LPM-Correct-Tokens}
+% \mathit{Correct}_{ijs} = \beta\, \mathit{Completion\_tokens\_c}_{ijs} + \mathit{Task}_{j}'\eta + \mathit{Model}_{i}'\theta + u_{ijs},
+% \end{equation}
+% where $\mathit{Correct}_{ijs}$ equals 1 if model $i$ solves task $j$ correctly in run $s$, and 0 otherwise. To make coefficients easier to interpret, we center $\mathit{Completion\_tokens}$ to obtain $\mathit{Completion\_tokens\_c}$. $\mathit{Task}_{j}$ and $\mathit{Model}_{i}$ denote full sets of task and model dummies, respectively. The constant is omitted, so the specification includes a full set of model indicators without collinearity, while task
+%   \emph{Addition} is omitted as the reference level. We estimate Equation \eqref{eq:LPM-Correct-Tokens} for data gathered under the control (T0) treatment.\footnote{We estimate a linear probability model for ease of interpretation; average partial effects from a logit specification
+%   deliver essentially the same qualitative picture.}
+
+% Table \ref{tab:LPM-Correct-Tokens} displays the results. The coefficient on $\mathit{Completion\_tokens\_c}$ implies that, conditional on task and model, one additional completion token is associated with a reduction in the probability of solving the task correctly of about 0.03 percentage points. Since the standard deviation of $\mathit{Completion\_tokens\_c}$ is approximately 725, a one-standard-deviation increase in output length is associated with a decline in success probability of about 22 percentage points.
+
+% Because $\mathit{Completion\_tokens\_c}$ is not exogenously assigned, this result should be interpreted as an association rather than a causal effect. In particular, it provides no evidence that producing more output, or taking longer as proxied by output length, improves accuracy. With centered completion tokens and no intercept, the sum of the coefficients on $\mathit{Model}_{i}$ and $\mathit{Task}_{j}$ gives the predicted probability that model $i$ correctly solves task $j$ at the average number of completion tokens.
+
+% \begin{table}[ht]
+% \centering
+% \begin{tabular}{lrrrr}
+%   \toprule
+%  & \textbf{Estimate} & \textbf{Std. Error} & \textbf{t-value} & \textbf{Pr($>$$|$t$|$)} \\ 
+%   \hline \noalign{\vskip 6pt}
+% completion\_tokens\_c 		   &-0.0003 & 3e-5   & -8.37 & < 2.2e-16 \\ 
+%    claude-3.7-sonnet 			& 0.734 & 0.036 & 19.96 & < 2.2e-16 \\ 
+%    claude-haiku-4.5 			& 0.702 & 0.039 & 17.68 & < 2.2e-16 \\ 
+%    claude-opus-4.5 				& 1.004 & 0.037 & 24.17 & < 2.2e-16 \\ 
+%    claude-opus-4.6 				& 0.823 & 0.045 & 17.95 & < 2.2e-16 \\ 
+%    claude-sonnet-4 				& 0.780 & 0.035 & 21.76 & < 2.2e-16 \\ 
+%    claude-sonnet-4.5 			& 0.806 & 0.041 & 19.49 & < 2.2e-16 \\ 
+%    claude-sonnet-4.6 			& 0.758 & 0.044 & 17.25 & < 2.2e-16 \\ 
+%    gemini-2.5-flash 			& 0.709 & 0.032 & 21.76 & < 2.2e-16 \\ 
+%    gemini-2.5-flash-lite		& 0.743 & 0.030 & 24.63 & < 2.2e-16 \\ 
+%    gemini-2.5-pro 				& 0.772 & 0.028 & 27.08 & < 2.2e-16 \\ 
+%    gemini-3-flash-preview 		& 1.040 & 0.029 & 31.42 & < 2.2e-16 \\ 
+%    gemini-3.1-flash-lite-preview& 1.006 & 0.033 & 26.98 & < 2.2e-16 \\ 
+%    gemini-3.1-pro-preview		& 1.034 & 0.034 & 26.89 & < 2.2e-16 \\ 
+%    gpt-5 						& 0.833 & 0.022 & 36.60 & < 2.2e-16 \\ 
+%    gpt-5-mini 					& 0.783 & 0.025 & 31.03 & < 2.2e-16 \\ 
+%    gpt-5.1 						& 0.775 & 0.032 & 24.06 & < 2.2e-16 \\ 
+%    gpt-5.2 						& 0.851 & 0.042 & 20.27 & < 2.2e-16 \\ 
+%    gpt-5.4 						& 0.891 & 0.039 & 22.56 & < 2.2e-16 \\ 
+%    gpt-5.4-mini					& 0.804 & 0.033 & 23.79 & < 2.2e-16 \\ 
+%    gpt-5.4-nano					& 0.734 & 0.031 & 23.06 & < 2.2e-16 \\ 
+%    o3 							& 0.759 & 0.025 & 29.42 & < 2.2e-16 \\ 
+%    o4-mini 						& 0.806 & 0.022 & 35.16 & < 2.2e-16 \\ 
+%    o4-mini-high 				& 0.795 & 0.023 & 34.02 & < 2.2e-16 \\ 
+%    Counting Zeros 				&-0.284 & 0.079 & -3.55 & 0.0004 \\ 
+%    String Entry 				&-0.387 & 0.068 & -5.68 & 1.4e-08 \\ 
+%    Sudoku 				&-0.286 & 0.093 & -3.06 & 0.0022 \\ 
+%    Letter Decoding 				& 0.039 & 0.021 & 1.81 & 0.0692 \\ 
+%    Sequence Completion				&-0.016 & 0.020 & -0.82 & 0.4108 \\ 
+%    Number Pair Summation 				& 0.137 & 0.017 & 8.01 & 1.4e-15  \\ 
+%    Distorted Text 			&-0.172 & 0.035 & -4.84 & 1.3e-06 \\ 
+%    \bottomrule
+% \end{tabular}
+% \caption{Output for model \eqref{eq:LPM-Correct-Tokens}. Standard errors are clustered with respect to the $\mathit{Model}$ set  of dummies. The reference level for the tasks is \emph{Addition}.\label{tab:LPM-Correct-Tokens}}. 
+% \end{table}
+
+
+% \begin{figure}[ht]
+%     \centering
+%     \includegraphics[width=\textwidth]{imgs/fig12_accuracy_vs_tokens.pdf}
+%     \caption{Accuracy versus average completion tokens per task, averaged over all treatments. Each point represents one of the 23 LLMs. No clear positive relationship emerges: producing more output tokens does not reliably predict higher accuracy.}
+%     \label{fig:accuracy_vs_tokens}
+% \end{figure}
+
+\clearpage
+% \section{Treatment effects}
+
+% We complement the analysis of treatment effects on model accuracy in Section \ref{sec:incentives} by estimating all treatment effects within a single model. 
+% This allows us not only to contrast the accuracy deltas separately for the standard framing and the human-persona framing, but also to compare the effects of all treatments jointly.
+% We start by defining the model to estimate. Let $Y_{ijt}$ denote the number of successes out of the $n_{ijt}$ repetitions by model $i$ in task $j$ under treatment $t$. The index $t \in \{0, 1, \dots, 4\}$ denotes treatments $\{T0, T1, T2, T3, T4\}$. Furthermore, $u_i$ and $v_j$ are model and task fixed effects, respectively. 
+% We model $Y_{ijt}$ as
+% \begin{equation}\label{eq:fixed_eff}
+% 	Y_{ijt} \mid u_i, v_j \sim \text{Binomial}(n_{ijt}, p_{ijt}),
+% \end{equation}
+% and the log-odds of the probability of success as
+% \begin{equation}\label{eq:fixed_eff_logit}
+% 	\log\Bigl(\frac{p_{ijt}}{1-p_{ijt}}\Bigr) = \beta_0 + T'\beta + u_i + v_j,
+% \end{equation}
+% where $T$ is a vector of treatment-specific dummies. Table \ref{tab:fixed_eff} reports the estimated coefficients on the treatment dummies. 
+% Consistent with the descriptive evidence in Figure~\ref{fig:incentive_heatmaps}, none of the treatment effects is statistically significant.
+% Notably, the coefficient associated with treatments T2  (the one with monetary incentives) is slightly higher than that of T1 although this difference is small and not statistically significant. Coefficients relative to T3 and T4 are practically identical.
+% Table \ref{tab:marg_eff} reports pairwise contrasts between treatment effects. \emph{P-values} are computed using Tukey’s correction for multiple testing. As expected, no contrast is statistically significant.
+
+% \begin{table}[ht]
+% \centering
+% \begin{tabular}{rcccc}
+%   \toprule
+%  & \textbf{Coeff.} & \textbf{Std. Err.} & \textbf{t-value} & \textbf{Pr($>|t|$)} \\ 
+%   \hline
+%   \noalign{\vskip 6pt}
+% (Intercept) & 6.492 & 0.51 & 12.62 & <2e-16 \\ 
+%   T1 & -0.040 & 0.07 & -0.56 & 0.57 \\ 
+%   T2 & 0.005 & 0.07 & 0.07 & 1.04 \\ 
+%   T3 & 0.007 & 0.07 & 0.11 & 1.02 \\ 
+%   T4 & 0.010 & 0.07 & 0.14 & 0.89  \\[+2pt] 
+%   \textit{Task fixed effects } & \multicolumn{2}{l}{not reported}\\
+%   \textit{Model fixed effects}& \multicolumn{2}{l}{not reported}\\
+%   \bottomrule
+%   \end{tabular}
+%   \caption{Output of model \eqref{eq:fixed_eff}. The baseline level is T0. Model and Task fixed effects are omitted. \label{tab:fixed_eff}}
+% \end{table}
+
+% \begin{table}[ht]
+% \centering
+% \begin{tabular}{cccccc}
+%   \toprule
+% \textbf{Contrast} & \textbf{Estimate} &  \textbf{Std. Err.} &  \textbf{z-value} & \textbf{Pr($>|z|$)} \\ 
+%   \hline
+% \noalign{\vskip 6pt}
+%    T0 - T1 & 0.040  & 0.070 & 0.563 & 1.080 \\ 
+%    T0 - T2 & -0.005 & 0.070 & -0.070 & 1.000 \\ 
+%    T0 - T3 & -0.007 & 0.070 & -0.106 & 1.000 \\ 
+%    T0 - T4 & -0.010 & 0.070 & -0.141 & 1.000 \\ 
+%    T1 - T2 & -0.045 & 0.070 & -0.634 & 1.070 \\ 
+%    T1 - T3 & -0.047 & 0.070 & -0.669 & 1.063 \\ 
+%    T1 - T4 & -0.050 & 0.070 & -0.704 & 1.056 \\ 
+%    T2 - T3 & -0.002 & 0.070 & -0.035 & 1.000 \\ 
+%    T2 - T4 & -0.005 & 0.070 & -0.070 & 1.000 \\ 
+%    T3 - T4 & -0.002 & 0.070 & -0.035 & 1.000 \\
+%    \bottomrule
+% \end{tabular}
+% \caption{Contrasts between the effects of the treatments in model \eqref{eq:fixed_eff}\label{tab:marg_eff}. \emph{P-values} are corrected for multiple testing.}
+% \end{table}
+
+\begin{comment}
+
+
+\section{Learning over runs}\label{sec:learning}
+
+We study learning over runs along two complementary dimensions. First, we test whether average accuracy increases with experience. This is an absolute notion of learning: if models learn over repeated runs, their probability of solving a task correctly should increase with the run index. Second, we test whether performance dispersion across models declines over runs. This is a convergence notion of learning: even if the overall mean does not improve much, weaker models could catch up to stronger ones, implying a reduction in cross-model variance over time.  Estimations in this section use only data gathered under the control (T0) treatment.
+
+\paragraph{Learning in the mean}
+To study whether models improve over runs, we work at the task level and test whether the probability of solving a task correctly changes with the run index. Learning is identified by the coefficient on the run index and by its interactions with the model indicators.
+We estimate the linear probability model
+\begin{equation}
+\mathit{Correct}_{ijs} = \alpha + \gamma\, \mathit{Run}_{s} + \mathit{Model}_{i}'\theta + \mathit{Task}_{j}'\eta + \left(\mathit{Run}_{s} \times \mathit{Model}_{i}\right)'\delta + u_{ijs},
+\end{equation}
+where $\mathit{Run}_{s}$ is the iteration index.\footnote{We estimate a linear probability model for ease of interpretation; average partial effects from a logit specification
+deliver essentially the same qualitative picture.}
+  The coefficient $\gamma$ captures the learning slope for \emph{Claude-3.7-Sonnet}, the reference model, while the interaction coefficients in $\delta$ measure how the slope differs across models. For space reasons, in the paper we report only the coefficient on $\mathit{Run}_{s}$ and the interactions between $\mathit{Run}_{s}$ and the model dummies, since the object of interest is the heterogeneity of slopes rather than the level differences captured by the model dummies themselves.
+
+Results are reported in Table~\ref{tab:MeanRoundLPM}. The estimated coefficient on $\mathit{Run}_{s}$ is essentially zero ($0.0001$, $p=1.08$). Moreover, all interaction terms between $\mathit{Run}_{s}$ and the model indicators are small in magnitude and statistically insignificant at conventional levels. Hence there is no evidence that models improve over the 20 runs, either on average or in a model-specific way. The dominant source of heterogeneity remains the task dimension, not the run index.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrrrr}
+  \toprule
+ & \textbf{Estimate} & \textbf{Std. Error} & \textbf{t-value} & \textbf{Pr($>|t|$)} \\ 
+  \hline
+   \noalign{\vskip 6pt}
+  (Intercept) 											& 1.0574 		& 0.0570 & 16.7882 	& 0.0000 \\ 
+  Run 													& 0.0001 		& 0.0046 & 0.0204 	& 1.0837 \\ 
+  Run $\times$ claude-haiku-4.5 						& -0.0033 		& 0.0065 & -0.5055 	& 0.6132 \\ 
+  Run $\times$ claude-opus-4.5 							& -0.0038 		& 0.0065 & -0.5777 	& 0.5635 \\ 
+  Run $\times$ claude-opus-4.6 							& -0.0020 		& 0.0065 & -0.3033 	& 0.7617 \\ 
+  Run $\times$ claude-sonnet-4 							& -0.0032 		& 0.0065 & -0.4911 	& 0.6234 \\ 
+  Run $\times$ claude-sonnet-4.5						& -0.0083 		& 0.0065 & -1.2710 	& 0.2038 \\ 
+  Run $\times$  claude-sonnet-4.6 						& 0.0024 		& 0.0065 & 0.3755 	& 0.7073 \\ 
+  Run $\times$  claude-sonnet-4.6 						& 0.0024 		& 0.0065 & 0.3755	& 0.7073 \\ 
+  Run $\times$  gemini-2.5-flash 						& -0.0019		& 0.0065 & -0.2889 	& 0.7727 \\ 
+  Run $\times$  gemini-2.5-flash-lite 					& -0.0038 		& 0.0065 & -0.5777 	& 0.5635 \\ 
+  Run $\times$  gemini-2.5-pro 							& -0.0023 		& 0.0065 & -0.3466 	& 0.7289 \\ 
+  Run $\times$  gemini-3-flash-preview 					& 0.0018 		& 0.0065 & 0.2744 	& 0.7838 \\ 
+  Run $\times$  gemini-3.1-flash-lite-preview 			& 0.0023 		& 0.0065 & 0.3611 	& 0.7181 			\\ 
+  Run $\times$  gemini-3.1-pro-preview 					& -0.0003 		& 0.0065 & -0.0433 	& 1.0654 \\ 
+  Run $\times$  gpt-5 									& 0.0005 		& 0.0065 & 0.0722 	& 1.0424 \\ 
+  Run $\times$  gpt-5-mini 								& 0.0016 		& 0.0065 & 0.2455 	& 0.8061 \\ 
+  Run $\times$  gpt-5.1 								& -0.0009 		& 0.0065 & -0.1444 	& 0.8852 \\ 
+  Run $\times$  gpt-5.2 								& 0.0073 		& 0.0065 & 1.1266 	& 0.2600 \\ 
+  Run $\times$  gpt-5.4 								& 0.0007 		& 0.0065 & 0.1011 	& 1.0195 \\ 
+  Run $\times$  gpt-5.4-mini 							& -0.0010 		& 0.0065 & -0.1589 	& 0.8738 \\ 
+  Run $\times$  gpt-5.4-nano 							& 0.0001 		& 0.0065 & 0.0144 	& 1.0885 \\ 
+  Run $\times$  o3 										& -0.0038 		& 0.0065 & -0.5777 	& 0.5635 \\ 
+  Run $\times$  o4-mini 								& 0.0037 		& 0.0065 & 0.5633 	& 0.5733 \\ 
+  Run $\times$  o4-mini-high 							& -0.0071 		& 0.0065 & -1.0977 	& 0.2724 \\[+2pt] 
+  \textit{Model fixed effects} 							& \multicolumn{2}{l}{not reported} \\
+    \textit{Tasks fixed effects} 							& \multicolumn{2}{l}{not reported} \\
+   \bottomrule
+\end{tabular}
+\caption{Evolution of the accuracy over runs. Task fixed effects are omitted. \emph{Claude-3.7-Sonnet} is the reference model.} 
+\label{tab:MeanRoundLPM}
+\end{table}
+
+
+\paragraph{Learning as convergence in the variance}
+We next examine whether models become more similar to each other over runs. To do so, we first compute, for each run $s$ and model $i$, the average accuracy across tasks:
+\[
+\mathit{MeanAccuracy}_{is} = \frac{1}{J}\sum_j \mathit{Correct}_{ijs}.
+\]
+We then collapse these model-level means by run and compute
+\[
+\mathit{SD\_Accuracy}_{s} = \sqrt{\frac{1}{I-1}\sum_i \left(\mathit{MeanAccuracy}_{is} - \overline{\mathit{MeanAccuracy}}_{s}\right)^2},
+\]
+where $\overline{\mathit{MeanAccuracy}}_{s}$ is the mean of $\mathit{MeanAccuracy}_{is}$ across models in run $s$. The variable $\mathit{SD\_Accuracy}_{s}$ therefore measures cross-model dispersion in accuracy at run $s$: a lower value means models are more similar to each other, while a higher value means model performance is more spread out.
+
+The evolution of $\mathit{SD\_Accuracy}_{s}$ over runs is shown in Table~\ref{tab:RoundDispersion}. 
+Dispersion fluctuates across runs but shows no clear downward trend. To summarize this formally, we estimate
+\begin{equation}
+\mathit{SD\_Accuracy}_{s} = \omega + \rho\, \mathit{Run}_{s} + e_s.
+\end{equation}
+This regression asks whether cross-model dispersion systematically falls as the run index increases. A negative and significant coefficient $\rho$ would indicate convergence across models over time.
+
+Table~\ref{tab:VarianceRoundModel}, shows that the estimated slope is essentially zero and far from statistically significant ($\mathit{p-value}$=0.44). Hence there is no evidence that cross-model dispersion declines over runs. In other words, the data show neither learning in the mean nor convergence in the variance.
+
+The dependent variable in the variance regression is generated, so a fully formal treatment could bootstrap the entire procedure to account for first-stage uncertainty in $\mathit{SD\_Accuracy}$. 
+We do not pursue that correction here because our main concern is avoiding false positives, and the estimated slope is already far from significance under the naive specification. 
+Any correction that inflates standard errors would only reinforce the conclusion that there is no evidence of learning over runs.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{ccc}
+  \toprule
+\textit{Run} & $\mathit{MeanAccuracy}$ & $\mathit{SD\_Accuracy}$ \\ 
+  \hline
+   \noalign{\vskip 6pt}
+   1 & 0.68 & 0.12 \\ 
+   2 & 0.71 & 0.15 \\ 
+   3 & 0.68 & 0.12 \\ 
+   4 & 0.70 & 0.15 \\ 
+   5 & 0.70 & 0.12 \\ 
+   6 & 0.67 & 0.14 \\ 
+   7 & 0.64 & 0.15 \\ 
+   8 & 0.68 & 0.13 \\ 
+   9 & 0.68 & 0.15 \\ 
+  10 & 0.67 & 0.15 \\ 
+  11 & 0.71 & 0.15 \\ 
+  12 & 0.72 & 0.17 \\ 
+  13 & 0.70 & 0.15 \\ 
+  14 & 0.73 & 0.13 \\ 
+  15 & 0.70 & 0.13 \\ 
+  16 & 0.71 & 0.13 \\ 
+  17 & 0.67 & 0.12 \\ 
+  18 & 0.68 & 0.14 \\ 
+  19 & 0.63 & 0.14 \\ 
+  20 & 0.65 & 0.18 \\ 
+   \bottomrule
+\end{tabular}
+\caption{Cross-model dispersion by round.\label{tab:RoundDispersion}} 
+\end{table}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{rrrrr}
+  \toprule
+ & \textbf{Estimate} & \textbf{Std. Error} & \textbf{t-value} & \textbf{Pr($>|t|$)} \\ 
+  \hline
+  \noalign{\vskip 6pt} 
+(Intercept) & 0.14 & 0.01 & 17.74 & 0.00 \\ 
+  Run & 0.00 & 0.00 & 0.79 & 0.44 \\ 
+   \bottomrule
+\end{tabular}
+\caption{Linear trend in cross-model standard deviation over runs.\label{tab:VarianceRoundModel}} 
+\end{table}
+
+\end{comment}
+
+\begin{comment}
+    
+\section{Ideas/future works}
+
+\begin{itemize}
+\item fare papero 2 (FPF is boss)
+\item fare papero 3 (FB is boss)
+\item dire che misurare il drift di performance (learning/fatigue) puo' essere un modo per distinguere l'umano dalla macchina -- le chiamante all'LLM con lo stesso prompt ritornano campioni dello stesso processo stocastico e quindi non hanno drift
+  \item ma si usano giochi combinatori NP-hard nei real-effort task? number-pair summing e' una versione ristretta di subset sum: una domanda sarebbe: quanto sono bravi gli LLM a risolvere giochi/problemi NP-hard (pur piccoli?)
+\end{itemize}
+\end{comment}
+
+
+\section{Further technical details}
+
+\subsection{Details of the tested LLMs}\label{app:LLMs}
+
+Table~\ref{tab:LLMs} reports the provider, model name, release date, and cost (relative to input and output tokens) of each LLM we tested.
+
+\begin{table}[h]
+\caption{Tested LLMs, along with their release dates and prices (USD per million tokens) for input and output, as reported by the OpenRouter API as of March 23, 2026.}
+\label{tab:LLMs}
+\begin{tabular}{@{}llcrr@{}}
+\toprule
+\textbf{Provider}  & \textbf{Model}            & \textbf{Released} & \textbf{In(\$/Mt)} & \textbf{Out(\$/Mt)} \\ \midrule
+\textbf{Anthropic} & Claude4.6-Opus             & 2026-02           & 5.00               & 25.00               \\
+                   & Claude4.6-Sonnet           & 2026-02           & 3.00               & 15.00               \\
+                   & Claude4.5-Opus             & 2025-11           & 5.00               & 25.00               \\
+                   & Claude4.5-Sonnet           & 2025-09           & 3.00               & 15.00               \\
+                   & Claude4.5-Haiku            & 2025-10           & 1.00               & 5.00                \\
+                   & Claude-4-Sonnet             & 2025-05           & 3.00               & 15.00               \\
+                   & Claude-3.7-Sonnet           & 2025-02           & 3.00               & 15.00               \\ \midrule
+\textbf{Google}    & Gemini-3.1-Pro       & 2026-02           & 2.00               & 12.00               \\
+                   & Gemini-3.1-Flash Lite & 2026-03           & 0.25               & 1.50                \\
+                   & Gemini-3-Flash       & 2025-12           & 0.50               & 3.00                \\
+                   & Gemini-2.5-Pro              & 2025-06           & 1.25               & 10.00               \\
+                   & Gemini-2.5-Flash            & 2025-06           & 0.30               & 2.50                \\
+                   & Gemini-2.5-Flash Lite        & 2025-07           & 0.10               & 0.40                \\ \midrule
+\textbf{OpenAI}    & GPT-5.4                   & 2026-03           & 2.50               & 15.00               \\
+                   & GPT-5.4-Mini               & 2026-03           & 0.75               & 4.50                \\
+                   & GPT-5.4-Nano               & 2026-03           & 0.20               & 1.25                \\
+                   & GPT-5.2                   & 2025-12           & 1.75               & 14.00               \\
+                   & GPT-5.1                   & 2025-11           & 1.25               & 10.00               \\
+                   & GPT-5                     & 2025-08           & 1.25               & 10.00               \\
+                   & GPT-5-Mini                 & 2025-08           & 0.25               & 2.00                \\
+                   & o3                        & 2025-04           & 2.00               & 8.00                \\
+                   & o4-mini                   & 2025-04           & 1.10               & 4.40                \\
+                   & o4-mini High       & 2025-04           & 1.10               & 4.40                \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{API Cost by Model}
+\label{app:cost}
+
+Figure~\ref{fig:cost_per_model} reports the average API cost per task for each model under the control treatment (T0). For completeness, we restate here the cost definition introduced in Section~\ref{sec:cost-accuracy}. The total cost for model $m$ on task $t$ is \[C_{m,t} := \sum_{i=1}^{N} \left( p_m^{\text{in}} \cdot T_{m,t,i}^{\text{in}} + p_m^{\text{out}} \cdot T_{m,t,i}^{\text{out}} \right),\] where $N$ is the number of runs, $T_{m,t,i}^{\text{in}}$ and $T_{m,t,i}^{\text{out}}$ are the input (textual prompt plus the image representing the task instance) and output (reasoning plus answer) tokens for model $m$ on the $i$-th run of task $t$, and $p_m^{\text{in}}$, $p_m^{\text{out}}$ are the per-token input and output prices for model $m$. The average cost per model is then \[\bar{C}_m := \frac{1}{|\mathcal{T}|} \sum_{t \in \mathcal{T}} C_{m,t},\] where $\mathcal{T}$ is the set of tasks.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\textwidth]{imgs/fig_cost_by_tier.pdf}
+    \caption{Average API cost per task (\$) $\bar{C}_m$ by model under the control treatment (T0), computed as in the text above. Models are grouped by provider and tier; darker shades indicate newer releases within the same tier. Error bars denote standard errors.}
+    \label{fig:cost_per_model}
+\end{figure}
+
+
+\end{document}
