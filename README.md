@@ -51,10 +51,6 @@ real_effort/
 
 All image tasks have a mirror `--text-only` mode that feeds a textual representation of the puzzle to models that either cannot see images or for which we want to isolate the vision component.
 
-### Reference Points (Abeler et al., AER 2011)
-
-`reference_points/` replicates Abeler, Falk, Goette & Huffman (AER 2011). It uses the counting-zeros task in a two-part design (calibration + self-paced effort provision) with five between-subject treatments (LO, HI, NOSAL, SAL, R). Runner: `run_reference_points.py`. See the paper for details.
-
 ## Experimental design
 
 Each benchmark run is parameterized by:
