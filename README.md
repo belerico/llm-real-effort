@@ -186,6 +186,30 @@ uv run otree devserver             # http://localhost:8000
 
 Session configs are defined in `real_effort/settings.py`; each puzzle task is a live-method oTree app with the same `is_correct` logic used by the benchmark.
 
+### Deploying to Heroku
+
+The repo ships with a `Procfile` and `.python-version`; Heroku's Python buildpack
+installs dependencies from `uv.lock` (do **not** add a `requirements.txt` — the
+buildpack rejects apps that mix package managers).
+
+```bash
+heroku create <app-name>
+heroku addons:create heroku-postgresql:essential-0      # sets DATABASE_URL
+heroku config:set OTREE_PRODUCTION=1
+heroku config:set OTREE_AUTH_LEVEL=STUDY
+heroku config:set OTREE_ADMIN_PASSWORD='<password>'
+heroku config:set OTREE_SECRET_KEY="$(python -c 'import secrets;print(secrets.token_hex(32))')"
+git push heroku master
+heroku run 'cd real_effort && otree resetdb'            # ONCE — creates tables
+heroku open
+```
+
+`otree resetdb` **wipes all data** — run it only on first deploy, never again
+(it is deliberately not in the `Procfile` release phase). The oTree project lives
+in the `real_effort/` subdirectory, so the `Procfile` `cd`s into it before
+starting `otree prodserver`. SQLite is not viable on Heroku (ephemeral
+filesystem) — the Postgres addon is required.
+
 ## Citation
 
 If you use this code or data, please cite:
