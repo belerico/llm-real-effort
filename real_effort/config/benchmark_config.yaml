@@ -118,6 +118,10 @@ game_defaults:
   puzzle_timeout: 120       # per-puzzle timeout in seconds (0 = disabled)
   incentive: true
   incentive_text: "You will earn a bonus of $0.50 for each correct answer."
+  # Bonus per correct answer for human participants (oTree side, in POINTS;
+  # converted to real currency by settings.real_world_currency_per_point).
+  # Only applied when incentive == true. Keep aligned with incentive_text.
+  bonus_per_correct: 1.0
 
 # Per-game settings (read by oTree server in creating_session())
 # If 'games' is present, only listed games are benchmarked.
@@ -135,10 +139,6 @@ game_defaults:
 #   task_sequences:     (no game-specific params, CSV-based)
 #   slider_puzzle:      size (int, grid side length), num_shuffles (int)
 #   string_entry:       length (int, characters per string, default 9)
-#   reference_points:   treatment (str: LO/HI/NOSAL/SAL/R), rows (int), cols (int),
-#                       min_zeros (int), max_zeros (int), part1_timeout (int),
-#                       part2_timeout (int), part1_puzzles (int),
-#                       max_part2_puzzles (int)
 games:
   sudoku_game:
     difficulty: 0.4
@@ -163,11 +163,3 @@ games:
     num_shuffles: 25
   string_entry:
     length: 9
-  reference_points:
-    treatment: LO
-    rows: 10
-    cols: 15
-    min_zeros: 55
-    max_zeros: 85
-    part1_puzzles: 10        # fixed number of tables in Part 1 (proxy for 4 min)
-    max_part2_puzzles: 10    # safety cap for Part 2 (original: no limit, up to 60 min)

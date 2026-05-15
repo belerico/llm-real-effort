@@ -9,12 +9,6 @@ dist/
 build/
 .coverage
 *.log
-real_effort/reports_ref_points/
-
-# reference-points replication (not part of the release)
-real_effort/reference_points/
-real_effort/_static/reference_points/
-real_effort/run_reference_points.py
 
 # secrets
 .env

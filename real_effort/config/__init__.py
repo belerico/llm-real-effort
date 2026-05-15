@@ -25,3 +25,20 @@ def get_game_config(game_name, config_path=None):
     games = config.get("games", {}) or {}
     per_game = games.get(game_name, {}) or {}
     return {**defaults, **per_game}
+
+
+def update_payoff(player):
+    """Recompute ``player.payoff`` from ``num_correct``.
+
+    Pays ``bonus_per_correct`` (in points; converted to real currency by
+    oTree via ``real_world_currency_per_point``) for every correct answer
+    when ``incentive`` is exactly ``True``. For ``False`` or
+    ``"explicit_none"``, payoff is 0. Mirrors the gating used in
+    run_benchmarks.py to keep human/LLM treatments aligned.
+    """
+    params = getattr(player.session, "params", {}) or {}
+    if params.get("incentive") is True:
+        bonus = float(params.get("bonus_per_correct", 1.0))
+        player.payoff = player.num_correct * bonus
+    else:
+        player.payoff = 0

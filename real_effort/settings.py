@@ -58,13 +58,6 @@ SESSION_CONFIGS = [
         repetitions=3,
     ),
     dict(
-        name="reference_points",
-        display_name="Reference Points (Abeler et al.)",
-        num_demo_participants=1,
-        app_sequence=["reference_points"],
-        treatment="LO",
-    ),
-    dict(
         name="slider_puzzle",
         display_name="Slider Puzzle",
         num_demo_participants=1,

@@ -5,7 +5,7 @@ import csv
 from otree import settings
 from otree.api import *
 
-from config import get_game_config
+from config import get_game_config, update_payoff
 
 doc = """
 Number sequence tasks. Participant sees a number sequence and must enter the
@@ -49,6 +49,7 @@ def creating_session(subsession: Subsession):
         puzzle_timeout=0,
         incentive=False,
         incentive_text="You will earn a bonus of $0.10 for each correct answer.",
+        bonus_per_correct=0.2,
     )
     session.params = {}
     for param in defaults:
@@ -112,6 +113,7 @@ def enc_puzzle(puzzle: Question):
 
 
 def get_progress(player: Player):
+    update_payoff(player)
     return dict(
         num_trials=player.num_trials,
         num_correct=player.num_correct,

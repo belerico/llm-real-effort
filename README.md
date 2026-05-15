@@ -19,13 +19,11 @@ real_effort/
 │   ├── sudoku_game/
 │   ├── slider_puzzle/
 │   ├── string_entry/
-│   ├── reference_points/             # Abeler et al. (AER 2011) replication
 │   ├── config/
 │   │   └── benchmark_config.yaml     # Single source of truth for benchmark settings
 │   ├── reports/                      # SQLite results DB + per-experiment reports
 │   ├── run_benchmarks.py             # Main benchmark runner (direct OpenRouter)
 │   ├── run_parallel.sh               # Parallel wrapper (one process per model)
-│   ├── run_reference_points.py       # Reference-points experiment runner
 │   ├── export_results.py             # Dump results.db → JSON for pandas
 │   ├── summary_stats.py              # Aggregate stats from results.db
 │   ├── plot_results.py               # Quick matplotlib plots from melted CSV
