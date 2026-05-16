@@ -5,7 +5,7 @@ import csv
 from otree import settings
 from otree.api import *
 
-from config import get_game_config, update_payoff
+from config import get_game_config, update_payoff, payoff_summary, export_puzzle_rows
 
 doc = """
 Number sequence tasks. Participant sees a number sequence and must enter the
@@ -120,6 +120,11 @@ def get_progress(player: Player):
         num_incorrect=player.num_failed,
         iteration=player.iteration,
     )
+
+
+def custom_export(players):
+    """One row per question attempt — appears on the admin Data page."""
+    yield from export_puzzle_rows(players, Question)
 
 
 def is_correct(response, puzzle):
@@ -283,7 +288,9 @@ class Game(Page):
 
 
 class Results(Page):
-    pass
+    @staticmethod
+    def vars_for_template(player: Player):
+        return payoff_summary(player)
 
 
 class End(Page):

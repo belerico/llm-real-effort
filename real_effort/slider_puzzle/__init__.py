@@ -4,7 +4,7 @@ import time
 from otree import settings
 from otree.api import *
 
-from config import get_game_config, update_payoff
+from config import get_game_config, update_payoff, payoff_summary, export_puzzle_rows
 
 from . import slider_puzzle
 from .image_utils import encode_image
@@ -122,6 +122,11 @@ def get_progress(player: Player):
         num_incorrect=player.num_failed,
         iteration=player.iteration,
     )
+
+
+def custom_export(players):
+    """One row per puzzle attempt — appears on the admin Data page."""
+    yield from export_puzzle_rows(players, Puzzle, extra_fields=("current_state",))
 
 
 # ── Live method ───────────────────────────────────────────────────────────
@@ -316,7 +321,9 @@ class Game(Page):
 
 
 class Results(Page):
-    pass
+    @staticmethod
+    def vars_for_template(player: Player):
+        return payoff_summary(player)
 
 
 class End(Page):

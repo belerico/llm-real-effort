@@ -75,6 +75,17 @@ SESSION_CONFIGS = [
 
 SESSION_CONFIG_DEFAULTS = dict(real_world_currency_per_point=0.50, participation_fee=2.50, doc="")
 
+# Stable recruitment URL for human participants: /room/real_effort/
+# Create a session "for" this room in the admin; participants who open the
+# room link are auto-assigned a slot. No participant_label_file → open room
+# (a ?participant_label=<id> query param, e.g. from Prolific, is still recorded).
+ROOMS = [
+    dict(
+        name="real_effort",
+        display_name="Artificial Effort — Human Experiment",
+    ),
+]
+
 PARTICIPANT_FIELDS = []
 SESSION_FIELDS = ["params"]
 
