@@ -257,7 +257,7 @@ def play_game(player: Player, msg: dict):
 class Game(Page):
     @staticmethod
     def get_timeout_seconds(player: Player):
-        return player.session.params.get("timeout", 60)
+        return None  # no oTree page timeout — per-puzzle countdown handles timing
 
     live_method = play_game
 

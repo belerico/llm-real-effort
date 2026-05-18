@@ -1,40 +1,72 @@
 /*
- * Per-puzzle timeout. Include AFTER the game-specific JS.
+ * Per-puzzle countdown. Include AFTER the game-specific JS.
  * Reads js_vars.params.puzzle_timeout (seconds). 0 or absent = disabled.
  *
- * When the timer fires:
- *   1. Freezes the UI and sends {type:'timeout'} to the server
- *   2. Server marks the puzzle as TIMEOUT, returns feedback with timed_out=true
- *   3. JS auto-advances to the next puzzle immediately (no user interaction)
+ * - Shows a visible MM:SS countdown for the CURRENT puzzle; it resets every
+ *   time a new puzzle loads (this is the only timer on the page — oTree's
+ *   page-level timeout is disabled in get_timeout_seconds()).
+ * - When it reaches 0: freezes the UI, sends {type:'timeout'} to the server;
+ *   the server marks the puzzle TIMEOUT and the JS auto-advances.
  */
 (function () {
     if (typeof liveSend === 'undefined') return;
 
     var _timer = null;
+    var _interval = null;
+    var _deadline = 0;
     var _movingForward = false;
     var _serverIter = 0;
     var _origNewPuzzle = newPuzzle;
     var _origLiveRecv = liveRecv;
     var _origMoveForward = moveForward;
 
-    function _startTimer() {
-        _clearTimer();
-        var timeout = (js_vars.params || {}).puzzle_timeout || 0;
-        if (timeout > 0) {
-            _timer = setTimeout(function () {
-                _timer = null;
-                setFrozen(true);
-                lockInput();
-                liveSend({type: 'timeout'});
-            }, timeout * 1000);
-        }
+    // Inject a visible countdown at the top of the task area.
+    var _display = document.createElement('div');
+    _display.id = 'puzzle-timer';
+    _display.style.cssText =
+        'font-weight:bold;font-size:1.2rem;text-align:center;margin:0.25rem 0 0.75rem;';
+    var _host = document.querySelector('.task-wrapper') || document.body;
+    _host.insertBefore(_display, _host.firstChild);
+
+    function _fmt(secs) {
+        secs = Math.max(0, Math.round(secs));
+        var m = Math.floor(secs / 60);
+        var s = secs % 60;
+        return m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    function _render() {
+        _display.textContent =
+            'Time left for this puzzle: ' + _fmt((_deadline - Date.now()) / 1000);
+    }
+
+    function _stopInterval() {
+        if (_interval) { clearInterval(_interval); _interval = null; }
     }
 
     function _clearTimer() {
         if (_timer) { clearTimeout(_timer); _timer = null; }
+        _stopInterval();
     }
 
-    // Wrap newPuzzle: reset state, run original, start timer
+    function _startTimer() {
+        _clearTimer();
+        var timeout = (js_vars.params || {}).puzzle_timeout || 0;
+        if (timeout <= 0) { _display.textContent = ''; return; }
+        _deadline = Date.now() + timeout * 1000;
+        _render();
+        _interval = setInterval(_render, 1000);
+        _timer = setTimeout(function () {
+            _timer = null;
+            _stopInterval();
+            _display.textContent = "Time's up.";
+            setFrozen(true);
+            lockInput();
+            liveSend({type: 'timeout'});
+        }, timeout * 1000);
+    }
+
+    // Wrap newPuzzle: reset state, run original, (re)start the countdown
     newPuzzle = function (data) {
         _clearTimer();
         _movingForward = false;
