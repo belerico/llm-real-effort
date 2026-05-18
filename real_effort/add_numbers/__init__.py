@@ -47,7 +47,7 @@ def creating_session(subsession: Subsession):
     )
     # Merge into shared params — in a multi-app session oTree runs every app's
     # creating_session, so don't wipe params set by the other games.
-    session.params = session.params if session.params is not None else {}
+    session.params = session.vars.get("params") or {}
     for param in defaults:
         session.params[param] = game_cfg.get(param, session.config.get(param, defaults[param]))
     reps = game_cfg.get("repetitions", session.config.get("repetitions"))
