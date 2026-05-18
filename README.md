@@ -20,7 +20,8 @@ real_effort/
 │   ├── slider_puzzle/
 │   ├── string_entry/
 │   ├── config/
-│   │   └── benchmark_config.yaml     # Single source of truth for benchmark settings
+│   │   ├── otree_config.yaml         # Human (oTree) experiment settings
+│   │   └── benchmark_config_llm.yaml # LLM benchmark settings
 │   ├── reports/                      # SQLite results DB + per-experiment reports
 │   ├── run_benchmarks.py             # Main benchmark runner (direct OpenRouter)
 │   ├── run_parallel.sh               # Parallel wrapper (one process per model)
@@ -85,7 +86,7 @@ export OPENROUTER_API_KEY=sk-or-...
 
 ## Running the LLM benchmark
 
-All settings live in [`real_effort/config/benchmark_config.yaml`](real_effort/config/benchmark_config.yaml) — the models list, sampling parameters, reasoning effort, per-game puzzle parameters, and treatment defaults. CLI flags override YAML values.
+All settings live in [`real_effort/config/benchmark_config_llm.yaml`](real_effort/config/benchmark_config_llm.yaml) — the models list, sampling parameters, reasoning effort, per-game puzzle parameters, and treatment defaults. CLI flags override YAML values. (The human oTree experiment reads a separate `config/otree_config.yaml`.)
 
 ### Single-process run
 

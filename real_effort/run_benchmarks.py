@@ -40,6 +40,10 @@ REPORT_DIR = SCRIPT_DIR / "reports"
 RESULTS_DB = REPORT_DIR / "results.db"
 STATE_FILE = "experiment.json"
 
+# Default benchmark config. Separate from config/otree_config.yaml (which the
+# oTree apps read) so benchmark settings can diverge without affecting oTree.
+DEFAULT_CONFIG = SCRIPT_DIR / "config" / "benchmark_config_llm.yaml"
+
 DEFAULT_MODEL = "openrouter/google/gemini-3-flash-preview"
 
 # Game name → puzzle module import path
@@ -1269,8 +1273,8 @@ def main():
     )
     parser.add_argument(
         "--config",
-        default=None,
-        help="Path to YAML benchmark config file.",
+        default=DEFAULT_CONFIG,
+        help=f"Path to YAML benchmark config file (default: {DEFAULT_CONFIG.name}).",
     )
     parser.add_argument(
         "--models",

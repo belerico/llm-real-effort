@@ -198,7 +198,7 @@ if [[ ${#GAMES_OVERRIDE_RAW[@]} -gt 0 ]]; then
 fi
 
 CONFIG_OUTPUT=$(
-    BENCHMARK_CONFIG_PATH="${CONFIG_PATH:-}" uv run python -c '
+    BENCHMARK_CONFIG_PATH="${CONFIG_PATH:-config/benchmark_config_llm.yaml}" uv run python -c '
 import os
 from config import load_benchmark_config
 from run_benchmarks import DEFAULT_MODEL
@@ -302,7 +302,7 @@ fi
 
 echo "Starting parallel benchmarks: ${#MODELS[@]} models"
 echo "Experiment: $FOLDER"
-echo "Config: ${CONFIG_PATH:-config/benchmark_config.yaml}"
+echo "Config: ${CONFIG_PATH:-config/benchmark_config_llm.yaml}"
 echo "Reasoning: ${EFFECTIVE_TIER:-config-default}${TIER_ARGS:+ (override)}"
 echo "Incentive: ${EFFECTIVE_INCENTIVE}${INCENTIVE_ARGS:+ (override)}"
 echo "Models: ${MODELS[*]}"
