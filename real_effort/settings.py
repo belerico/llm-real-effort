@@ -27,9 +27,23 @@ SESSION_CONFIGS = [
             "task_transcription",
         ],
     ),
-    # To pilot a single task, temporarily add a one-app config here, e.g.:
-    #   dict(name="sudoku_game", display_name="Sudoku 6x6",
-    #        num_demo_participants=1, app_sequence=["sudoku_game"]),
+    # ── Individual games — selectable for piloting a single task ──
+    dict(name="add_numbers", display_name="Add Numbers",
+         num_demo_participants=1, app_sequence=["add_numbers"]),
+    dict(name="counting_zeros", display_name="Count Zeros",
+         num_demo_participants=1, app_sequence=["counting_zeros"]),
+    dict(name="string_entry", display_name="String Entry",
+         num_demo_participants=1, app_sequence=["string_entry"]),
+    dict(name="task_summation", display_name="Summation Grid",
+         num_demo_participants=1, app_sequence=["task_summation"]),
+    dict(name="task_sequences", display_name="Number Sequences",
+         num_demo_participants=1, app_sequence=["task_sequences"]),
+    dict(name="sudoku_game", display_name="Sudoku 6x6",
+         num_demo_participants=1, app_sequence=["sudoku_game"]),
+    dict(name="task_decoding", display_name="Word Decoding",
+         num_demo_participants=1, app_sequence=["task_decoding"]),
+    dict(name="task_transcription", display_name="Text Transcription",
+         num_demo_participants=1, app_sequence=["task_transcription"]),
 ]
 
 SESSION_CONFIG_DEFAULTS = dict(real_world_currency_per_point=0.50, participation_fee=2.50, doc="")
