@@ -46,7 +46,19 @@ SESSION_CONFIGS = [
          num_demo_participants=1, app_sequence=["task_transcription"]),
 ]
 
-SESSION_CONFIG_DEFAULTS = dict(real_world_currency_per_point=0.50, participation_fee=2.50, doc="")
+# Shared experiment knobs live here so they appear as editable fields on the
+# oTree admin "Create session" form — experimenters can change them per session
+# without editing config files or redeploying. They override the YAML defaults.
+SESSION_CONFIG_DEFAULTS = dict(
+    real_world_currency_per_point=0.50,
+    participation_fee=2.50,
+    doc="",
+    repetitions=10,
+    puzzle_timeout=600,
+    incentive=True,
+    incentive_text="You will earn a bonus of $0.50 for each correct answer.",
+    bonus_per_correct=1.0,
+)
 
 # Stable recruitment URLs — one per study day:
 #   /room/real_effort_day1/   and   /room/real_effort_day2/

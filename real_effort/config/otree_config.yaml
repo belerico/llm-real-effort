@@ -105,25 +105,13 @@ max_attempts: 0         # max LLM call retries per puzzle (botex --max-attempts)
 
 # Shared defaults applied to ALL games.
 # Per-game values (under 'games') override these.
-# Config priority: per-game YAML > game_defaults YAML > session.config > hardcoded defaults
 #
-# Available shared params:
-#   retry_delay, puzzle_delay, attempts_per_puzzle, repetitions
-#   timeout (int)          — page timeout in seconds (default: 60, sudoku: 300)
-#   incentive (bool|str)   — true: show compensation text, false: no mention,
-#                            "explicit_none": explicitly state no compensation
-#   incentive_text (str)   — custom compensation text (default: "$0.10 per correct answer")
-#   persona (str)          — "standard" (default) or "human" (model told to behave as a human)
-game_defaults:
-  repetitions: 10
-  timeout: 7200             # oTree page timeout (entire game) — 2h, effectively disabled
-  puzzle_timeout: 600       # per-puzzle timeout in seconds (0 = disabled) — 10 min
-  incentive: true
-  incentive_text: "You will earn a bonus of $0.50 for each correct answer."
-  # Bonus per correct answer for human participants (oTree side, in POINTS;
-  # converted to real currency by settings.real_world_currency_per_point).
-  # Only applied when incentive == true. Keep aligned with incentive_text.
-  bonus_per_correct: 1.0
+# NOTE: the shared experiment knobs — repetitions, puzzle_timeout, incentive,
+# incentive_text, bonus_per_correct — now live in settings.SESSION_CONFIG_DEFAULTS
+# so they are editable per-session from the oTree admin. session.config wins
+# over this YAML, so setting them here would have no effect on the oTree side.
+# Only per-game params (under 'games:' below) are still YAML-driven.
+game_defaults: {}
 
 # Per-game settings (read by oTree server in creating_session())
 # If 'games' is present, only listed games are benchmarked.
