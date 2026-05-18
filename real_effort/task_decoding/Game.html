@@ -8,6 +8,8 @@ Decode the Word
 
 {{ block content }}
 <div class="task-wrapper" data-task="decoding" data-page="Game">
+    {{ include C.INSTRUCTION_TEMPLATE }}
+    <br>
     <div class="d-flex flex-column align-items-center">
         <h3>
             Iteration <span id="iter-txt"></span>
@@ -24,8 +26,6 @@ Decode the Word
 
         <p class="warn" id="warning-txt"></p>
     </div>
-    <br>
-    {{ include C.INSTRUCTION_TEMPLATE }}
 </div>
 
 {{ endblock }}
