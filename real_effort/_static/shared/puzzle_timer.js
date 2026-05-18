@@ -42,6 +42,26 @@
         _answer.style.maxWidth = 'none';  // let the field flex to fill the group
     }
 
+    // Admin "Skip puzzle" button — only when the session config sets allow_skip.
+    // Clicking it asks the server to skip the current puzzle and advance.
+    if ((js_vars.params || {}).allow_skip) {
+        var _skip = document.createElement('button');
+        _skip.type = 'button';
+        _skip.id = 'skip-btn';
+        _skip.textContent = 'Skip puzzle';
+        _skip.className = 'btn btn-outline-warning btn-sm';
+        _skip.style.cssText = 'display:block;margin:0.5rem auto;';
+        _skip.onclick = function () {
+            if (typeof isFrozen !== 'undefined' && isFrozen) return;
+            liveSend({type: 'skip'});
+        };
+        if (_question) {
+            _question.parentNode.insertBefore(_skip, _question.nextSibling);
+        } else {
+            (document.querySelector('.task-wrapper') || document.body).appendChild(_skip);
+        }
+    }
+
     function _fmt(secs) {
         secs = Math.max(0, Math.round(secs));
         var m = Math.floor(secs / 60);

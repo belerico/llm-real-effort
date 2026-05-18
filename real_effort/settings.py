@@ -60,6 +60,9 @@ SESSION_CONFIG_DEFAULTS = dict(
     incentive=True,
     incentive_text="You will earn a bonus of $0.50 for each correct answer.",
     bonus_per_correct=1.0,
+    # Shows a "Skip puzzle" button on the Game page — for staff/pilot sessions.
+    # Leave False (the default) for real participant sessions.
+    allow_skip=False,
 )
 
 # Stable recruitment URLs — one per study day:

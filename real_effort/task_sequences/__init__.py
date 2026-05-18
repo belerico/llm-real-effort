@@ -50,6 +50,7 @@ def creating_session(subsession: Subsession):
         incentive=False,
         incentive_text="You will earn a bonus of $0.10 for each correct answer.",
         bonus_per_correct=0.2,
+        allow_skip=False,
     )
     # Merge into shared params — in a multi-app session oTree runs every app's
     # creating_session, so don't wipe params set by the other games.
@@ -183,6 +184,27 @@ def play_game(player: Player, msg: dict):
         current.attempts = params["attempts_per_puzzle"]
         player.num_failed += 1
         player.num_trials += 1
+        return {
+            my_id: dict(
+                type="feedback",
+                is_correct=False,
+                retries_left=0,
+                progress=get_progress(player),
+                timed_out=True,
+            )
+        }
+
+    if msg_type == "skip":
+        # Admin-only "Skip" — enabled per session via the allow_skip config flag.
+        if not params.get("allow_skip", False) or current is None:
+            return {my_id: dict(type="status", progress=get_progress(player))}
+        if current.response is None:
+            current.response = "SKIPPED"
+            current.is_correct = False
+            current.response_timestamp = now
+            current.attempts = params["attempts_per_puzzle"]
+            player.num_failed += 1
+            player.num_trials += 1
         return {
             my_id: dict(
                 type="feedback",
