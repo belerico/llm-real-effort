@@ -28,13 +28,18 @@
     var _host = document.querySelector('.task-wrapper') || document.body;
     _host.insertBefore(_display, _host.firstChild);
 
-    // Widen the answer input-group so the full placeholder hint is visible
-    // (oTree Lite has no project-wide stylesheet hook, so set it here — this
-    // script is loaded on every game page).
+    // Widen the answer box so the full placeholder hint is visible. oTree's
+    // theme2.css caps it (.input-group → 400px, input[type=number] → 150px);
+    // inline styles override that. Done here because this script loads on
+    // every game page and oTree Lite has no project-wide stylesheet hook.
     var _question = document.querySelector('.task-question');
     if (_question) {
         _question.style.width = '40rem';
         _question.style.maxWidth = '95vw';
+    }
+    var _answer = document.querySelector('.task-input');
+    if (_answer) {
+        _answer.style.maxWidth = 'none';  // let the field flex to fill the group
     }
 
     function _fmt(secs) {
