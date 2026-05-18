@@ -28,6 +28,15 @@
     var _host = document.querySelector('.task-wrapper') || document.body;
     _host.insertBefore(_display, _host.firstChild);
 
+    // Widen the answer input-group so the full placeholder hint is visible
+    // (oTree Lite has no project-wide stylesheet hook, so set it here — this
+    // script is loaded on every game page).
+    var _question = document.querySelector('.task-question');
+    if (_question) {
+        _question.style.width = '40rem';
+        _question.style.maxWidth = '95vw';
+    }
+
     function _fmt(secs) {
         secs = Math.max(0, Math.round(secs));
         var m = Math.floor(secs / 60);
