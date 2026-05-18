@@ -2,7 +2,7 @@ from pathlib import Path
 
 import yaml
 
-_CONFIG_PATH = Path(__file__).resolve().parent / "benchmark_config.yaml"
+_CONFIG_PATH = Path(__file__).resolve().parent / "otree_config.yaml"
 
 
 def load_benchmark_config(config_path=None):

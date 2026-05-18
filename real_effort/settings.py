@@ -1,6 +1,33 @@
 from os import environ
 
 SESSION_CONFIGS = [
+    # ── Two-day human experiment — each room runs one of these ──
+    # repetitions / incentive / timeouts all come from config/otree_config.yaml.
+    dict(
+        name="real_effort_day1",
+        display_name="Artificial Effort — Day 1",
+        num_demo_participants=1,
+        app_sequence=[
+            "intro",
+            "string_entry",
+            "counting_zeros",
+            "add_numbers",
+            "task_summation",
+            "task_sequences",
+        ],
+    ),
+    dict(
+        name="real_effort_day2",
+        display_name="Artificial Effort — Day 2",
+        num_demo_participants=1,
+        app_sequence=[
+            "intro",
+            "sudoku_game",
+            "task_decoding",
+            "task_transcription",
+        ],
+    ),
+    # ── Individual games — for piloting / testing a single task ──
     dict(
         name="task_decoding",
         display_name="Word Decoding",
@@ -51,13 +78,6 @@ SESSION_CONFIGS = [
         repetitions=3,
     ),
     dict(
-        name="slider_puzzle",
-        display_name="Slider Puzzle",
-        num_demo_participants=1,
-        app_sequence=["slider_puzzle"],
-        repetitions=3,
-    ),
-    dict(
         name="string_entry",
         display_name="String Entry",
         num_demo_participants=1,
@@ -68,15 +88,15 @@ SESSION_CONFIGS = [
 
 SESSION_CONFIG_DEFAULTS = dict(real_world_currency_per_point=0.50, participation_fee=2.50, doc="")
 
-# Stable recruitment URL for human participants: /room/real_effort/
-# Create a session "for" this room in the admin; participants who open the
-# room link are auto-assigned a slot. No participant_label_file → open room
-# (a ?participant_label=<id> query param, e.g. from Prolific, is still recorded).
+# Stable recruitment URLs — one per study day:
+#   /room/real_effort_day1/   and   /room/real_effort_day2/
+# Create a session "for" the room in the admin (config of the same name);
+# participants who open the room link are auto-assigned a slot. Open rooms
+# (no participant_label_file) — a ?participant_label=<id> query param is still
+# recorded, but the same person's two days are linked by the email they enter.
 ROOMS = [
-    dict(
-        name="real_effort",
-        display_name="Artificial Effort — Human Experiment",
-    ),
+    dict(name="real_effort_day1", display_name="Artificial Effort — Day 1"),
+    dict(name="real_effort_day2", display_name="Artificial Effort — Day 2"),
 ]
 
 PARTICIPANT_FIELDS = []
