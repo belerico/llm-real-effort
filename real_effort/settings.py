@@ -26,6 +26,8 @@ SESSION_CONFIGS = [
             "task_decoding",
             "task_transcription",
         ],
+        # Show-up fee is paid once, on Day 1 — Day 2 adds only the bonus.
+        participation_fee=0,
     ),
     # ── Individual games — selectable for piloting a single task ──
     dict(name="add_numbers", display_name="Add Numbers",
