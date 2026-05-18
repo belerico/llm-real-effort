@@ -5,7 +5,7 @@ import csv
 from otree import settings
 from otree.api import *
 
-from config import get_game_config, update_payoff, payoff_summary, export_puzzle_rows
+from config import get_game_config, payoff_summary, export_puzzle_rows
 
 doc = """
 Number sequence tasks. Participant sees a number sequence and must enter the
@@ -118,7 +118,6 @@ def enc_puzzle(puzzle: Question):
 
 
 def get_progress(player: Player):
-    update_payoff(player)
     return dict(
         num_trials=player.num_trials,
         num_correct=player.num_correct,

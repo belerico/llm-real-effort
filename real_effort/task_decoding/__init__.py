@@ -3,7 +3,7 @@ import time
 from otree import settings
 from otree.api import *
 
-from config import get_game_config, update_payoff, payoff_summary, export_puzzle_rows
+from config import get_game_config, payoff_summary, export_puzzle_rows
 
 from . import task_decoding
 from .image_utils import encode_image
@@ -105,7 +105,6 @@ def enc_puzzle(puzzle: Puzzle):
 
 
 def get_progress(player: Player):
-    update_payoff(player)
     return dict(
         num_trials=player.num_trials,
         num_correct=player.num_correct,

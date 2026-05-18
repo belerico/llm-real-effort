@@ -27,39 +27,28 @@ def get_game_config(game_name, config_path=None):
     return {**defaults, **per_game}
 
 
-def update_payoff(player):
-    """Recompute ``player.payoff`` from ``num_correct``.
-
-    Pays ``bonus_per_correct`` (in points; converted to real currency by
-    oTree via ``real_world_currency_per_point``) for every correct answer
-    when ``incentive`` is exactly ``True``. For ``False`` or
-    ``"explicit_none"``, payoff is 0. Mirrors the gating used in
-    run_benchmarks.py to keep human/LLM treatments aligned.
-    """
-    params = getattr(player.session, "params", {}) or {}
-    if params.get("incentive") is True:
-        bonus = float(params.get("bonus_per_correct", 1.0))
-        player.payoff = player.num_correct * bonus
-    else:
-        player.payoff = 0
-
-
 def payoff_summary(player):
-    """End-of-game payout figures for the Results template.
+    """Per-task figures for the Results page.
 
-    Recomputes the payoff so it reflects the final ``num_correct``, then
-    expresses the bonus and grand total in real-world currency. ``bonus``
-    and ``total_pay`` are oTree currency objects; ``total_pay`` already
-    includes the session participation fee.
+    ``bonus`` is what the participant would earn *if this task is the one
+    drawn for payment* — num_correct x bonus_per_correct, in real-world
+    currency. Only one task is ever paid and the draw happens at payment
+    time, so this is computed for display only: it is NEVER written to
+    ``player.payoff`` (doing so would make oTree sum it across every task
+    into ``participant.payoff``).
     """
-    update_payoff(player)
-    session = player.session
+    from otree.api import cu
+
+    params = getattr(player.session, "params", {}) or {}
+    incentive = params.get("incentive") is True
+    points = (
+        player.num_correct * float(params.get("bonus_per_correct", 1.0))
+        if incentive
+        else 0
+    )
     return dict(
-        num_correct=player.num_correct,
-        num_trials=player.num_trials,
-        incentive=session.params.get("incentive") is True,
-        bonus=player.payoff.to_real_world_currency(session),
-        total_pay=player.participant.payoff_plus_participation_fee(),
+        incentive=incentive,
+        bonus=cu(points).to_real_world_currency(player.session),
     )
 
 
@@ -75,7 +64,7 @@ def export_puzzle_rows(players, puzzle_model, extra_fields=()):
     """
     header = [
         "session_code", "participant_code", "participant_label", "incentive",
-        "num_correct", "num_failed", "num_trials", "payoff",
+        "num_correct", "num_failed", "num_trials",
         "iteration", "attempts", "text", "solution", "response",
         "is_correct", "timestamp", "response_timestamp", "response_time",
     ]
@@ -91,7 +80,7 @@ def export_puzzle_rows(players, puzzle_model, extra_fields=()):
             row = [
                 session.code, participant.code, participant.label,
                 params.get("incentive"),
-                p.num_correct, p.num_failed, p.num_trials, p.payoff,
+                p.num_correct, p.num_failed, p.num_trials,
                 puz.iteration, puz.attempts, puz.text, puz.solution, puz.response,
                 puz.is_correct, puz.timestamp, puz.response_timestamp, response_time,
             ]

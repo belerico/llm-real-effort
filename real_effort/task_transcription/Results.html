@@ -8,10 +8,8 @@ Results
         You have tried {{ player.num_trials }} puzzles, successfully solved {{ player.num_correct }},
         and failed {{ player.num_failed }}.
     </p>
-    {{ if incentive }}
-    <p class="text-success">Bonus earned: <strong>{{ bonus }}</strong></p>
-    {{ endif }}
-    <p>Total payment (including the participation fee): <strong>{{ total_pay }}</strong></p>
+    <p>This task is concluded.{{ if incentive }} If this task is selected for payment,
+    you will receive a bonus of <strong>{{ bonus }}</strong>.{{ endif }}</p>
     {{ next_button }}
 </div>
 {{ endblock }}
