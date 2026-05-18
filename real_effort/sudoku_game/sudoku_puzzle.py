@@ -28,7 +28,11 @@ def generate_puzzle_fields(difficulty=0.2):
         text: JSON string of the puzzle grid (None for blanks)
         solution: space-separated missing numbers in reading order
     """
-    puzzle = Sudoku(BOX_ROWS, BOX_COLS, seed=random.randint(0, 2**31 - 1)).difficulty(difficulty)
+    # py-sudoku's Sudoku(width, height): width = box columns, height = box rows.
+    # Must match the box borders drawn by render_image() — 3 columns x 2 rows.
+    puzzle = Sudoku(
+        width=BOX_COLS, height=BOX_ROWS, seed=random.randint(0, 2**31 - 1)
+    ).difficulty(difficulty)
     solution_obj = puzzle.solve()
     solution_board = solution_obj.board
 

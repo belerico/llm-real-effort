@@ -115,7 +115,7 @@ max_attempts: 0         # max LLM call retries per puzzle (botex --max-attempts)
 game_defaults:
   repetitions: 20
   timeout: 7200             # oTree page timeout (entire game) — 2h, effectively disabled
-  puzzle_timeout: 120       # per-puzzle timeout in seconds (0 = disabled)
+  puzzle_timeout: 600       # per-puzzle timeout in seconds (0 = disabled) — 10 min
   incentive: true
   incentive_text: "You will earn a bonus of $0.50 for each correct answer."
   # Bonus per correct answer for human participants (oTree side, in POINTS;

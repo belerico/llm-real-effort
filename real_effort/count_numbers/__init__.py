@@ -134,9 +134,16 @@ def play_game(player: Player, msg: dict):
     current = get_cur_puzzle(player)
     msg_type = msg["type"]
 
-    # Auto-fail puzzle if per-puzzle timeout exceeded (server-side safety net)
+    # Auto-fail a stale puzzle if its per-puzzle timeout was exceeded — a safety
+    # net for non-'timeout' messages. Explicit 'timeout' messages are handled by
+    # the timeout branch below, which needs current.response to still be None.
     puzzle_timeout = params.get("puzzle_timeout", 0)
-    if puzzle_timeout > 0 and current is not None and current.response is None:
+    if (
+        puzzle_timeout > 0
+        and current is not None
+        and current.response is None
+        and msg_type != "timeout"
+    ):
         if now - current.timestamp >= puzzle_timeout:
             current.response = "TIMEOUT"
             current.is_correct = False
