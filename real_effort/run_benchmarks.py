@@ -37,7 +37,7 @@ from config import load_benchmark_config
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 REPORT_DIR = SCRIPT_DIR / "reports"
-RESULTS_DB = REPORT_DIR / "results.db"
+RESULTS_DB = REPORT_DIR / "results_orig.db"
 STATE_FILE = "experiment.json"
 
 # Default benchmark config. Separate from config/otree_config.yaml (which the

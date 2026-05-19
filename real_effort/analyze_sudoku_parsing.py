@@ -15,9 +15,9 @@ Usage:
     python analyze_sudoku_parsing.py real_effort/reports/t0-control --model claude-opus-4.6
 
     # From results.db (all experiments at once):
-    python analyze_sudoku_parsing.py real_effort/reports/results.db
-    python analyze_sudoku_parsing.py real_effort/reports/results.db --treatment t0-control
-    python analyze_sudoku_parsing.py real_effort/reports/results.db --model claude-opus-4.6 --only-failures
+    python analyze_sudoku_parsing.py real_effort/reports/results_orig.db
+    python analyze_sudoku_parsing.py real_effort/reports/results_orig.db --treatment t0-control
+    python analyze_sudoku_parsing.py real_effort/reports/results_orig.db --model claude-opus-4.6 --only-failures
 """
 
 import argparse
@@ -444,7 +444,7 @@ def main():
     args = parser.parse_args()
 
     source = Path(args.source)
-    if source.suffix == ".db" or source.name == "results.db":
+    if source.suffix == ".db" or source.name == "results_orig.db":
         is_text = None
         if args.text_only:
             is_text = True

@@ -38,7 +38,7 @@ import sys
 from pathlib import Path
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-RESULTS_DB = SCRIPT_DIR / "reports" / "results.db"
+RESULTS_DB = SCRIPT_DIR / "reports" / "results_orig.db"
 OTREE_DB = SCRIPT_DIR / "db.sqlite3"
 
 PUZZLE_TABLES = {

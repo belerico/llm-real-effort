@@ -316,14 +316,14 @@ experiment_exists() {
     local name="$1"
     local found
 
-    [[ -f reports/results.db ]] || return 1
+    [[ -f reports/results_orig.db ]] || return 1
 
     found=$(
         EXPERIMENT_NAME="$name" python3 -c '
 import os
 import sqlite3
 
-conn = sqlite3.connect("reports/results.db")
+conn = sqlite3.connect("reports/results_orig.db")
 row = conn.execute(
     "SELECT 1 FROM experiments WHERE name = ? LIMIT 1",
     (os.environ["EXPERIMENT_NAME"],),

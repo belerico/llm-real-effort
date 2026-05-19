@@ -43,7 +43,7 @@ plt.rcParams.update(
 )
 
 OUT = Path(__file__).resolve().parent / "imgs"
-DB = Path(__file__).resolve().parent.parent / "real_effort" / "reports" / "results.db"
+DB = Path(__file__).resolve().parent.parent / "real_effort" / "reports" / "results_orig.db"
 
 # ── Load data ──
 conn = sqlite3.connect(DB)
@@ -60,18 +60,13 @@ df = pd.read_sql_query(
 )
 conn.close()
 
-# Maps both original experiment names and string_entry experiment names
+# Experiment name -> (treatment label, persona, incentive)
 TREATMENT_MAP = {
     "t0-control": ("T0: Control", "control", "none"),
     "t1-standard-no-incentive": ("T1: Std No Inc", "standard", "no"),
     "t2-standard-incentive": ("T2: Std Inc", "standard", "yes"),
     "t3-human-no-incentive": ("T3: Hum No Inc", "human", "no"),
     "t4-human-incentive": ("T4: Hum Inc", "human", "yes"),
-    "string-t0-control": ("T0: Control", "control", "none"),
-    "string-t1-standard-no-incentive": ("T1: Std No Inc", "standard", "no"),
-    "string-t2-standard-incentive": ("T2: Std Inc", "standard", "yes"),
-    "string-t3-human-no-incentive": ("T3: Hum No Inc", "human", "no"),
-    "string-t4-human-incentive": ("T4: Hum Inc", "human", "yes"),
 }
 
 # Drop experiments not in our map (e.g. ad-hoc test runs)
@@ -560,7 +555,6 @@ _df_3b = pd.read_sql_query(
     JOIN experiments e ON r.experiment_id = e.id
     WHERE r.status = 'completed'
       AND (e.name LIKE 't_-%%'
-           OR e.name LIKE 'string-t_-%%'
            OR e.name LIKE 't_-%%text')
     """,
     conn_3b,
@@ -990,11 +984,6 @@ _text_experiments = [
     "t2-standard-incentive",
     "t3-human-no-incentive",
     "t4-human-incentive",
-    "string-t0-control",
-    "string-t1-standard-no-incentive",
-    "string-t2-standard-incentive",
-    "string-t3-human-no-incentive",
-    "string-t4-human-incentive",
     "t0-control-text",
     "t1-standard-no-incentive-text",
     "t2-standard-incentive-text",

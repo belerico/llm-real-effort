@@ -15,7 +15,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-RESULTS_DB = Path(__file__).resolve().parent / "reports" / "results.db"
+RESULTS_DB = Path(__file__).resolve().parent / "reports" / "results_orig.db"
 PLOT_DIR = Path(__file__).resolve().parent / "reports" / "plots"
 
 # Short names for readability
