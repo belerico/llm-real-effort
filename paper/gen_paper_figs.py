@@ -43,7 +43,12 @@ plt.rcParams.update(
 )
 
 OUT = Path(__file__).resolve().parent / "imgs"
-DB = Path(__file__).resolve().parent.parent / "real_effort" / "reports" / "results_orig.db"
+DB = (
+    Path(__file__).resolve().parent.parent
+    / "real_effort"
+    / "reports"
+    / "results_orig.db"
+)
 
 # ── Load data ──
 conn = sqlite3.connect(DB)
@@ -99,17 +104,14 @@ df.loc[df["timed_out"], "completion_tokens"] = 2048
 # Impute prompt_tokens for timeouts using the average for that model+game
 _timeout_mask = df["timed_out"]
 if _timeout_mask.any():
-    _avg_prompt = (
-        df[~_timeout_mask]
-        .groupby(["model", "game"])["prompt_tokens"]
-        .mean()
-    )
+    _avg_prompt = df[~_timeout_mask].groupby(["model", "game"])["prompt_tokens"].mean()
     for idx in df[_timeout_mask].index:
         key = (df.loc[idx, "model"], df.loc[idx, "game"])
         if key in _avg_prompt.index:
             df.loc[idx, "prompt_tokens"] = round(_avg_prompt[key])
     df.loc[_timeout_mask, "total_tokens"] = (
-        df.loc[_timeout_mask, "prompt_tokens"] + df.loc[_timeout_mask, "completion_tokens"]
+        df.loc[_timeout_mask, "prompt_tokens"]
+        + df.loc[_timeout_mask, "completion_tokens"]
     )
 df["treatment"] = pd.Categorical(
     df["treatment"], categories=TREATMENT_ORDER, ordered=True
@@ -1417,7 +1419,9 @@ for _, row in _t0_pareto.iterrows():
 _t0_front = pd.DataFrame(_t0_front)
 _t0_front_x = list(_t0_front["cost_per_game"].values)
 _t0_front_y = list(_t0_front["accuracy"].values)
-_t0_gemini_pro_cost = _t0_ms.loc[_t0_ms["model_short"] == "gemini-3.1-pro", "cost_per_game"].values
+_t0_gemini_pro_cost = _t0_ms.loc[
+    _t0_ms["model_short"] == "gemini-3.1-pro", "cost_per_game"
+].values
 if len(_t0_gemini_pro_cost):
     _t0_front_x.append(_t0_gemini_pro_cost[0])
     _t0_front_y.append(_t0_front_y[-1])
@@ -2041,7 +2045,12 @@ for ax, (fam, tiers) in zip(axes, _TIERS.items()):
         ax.axvline(x=b, color="gray", linewidth=0.8, linestyle=":", alpha=0.5)
 
 # Shared y-limits across all three axes for easier cross-family comparison
-_all_values = [_tier_cost.get(m, 0) for fam in _TIERS for tier in _TIERS[fam].values() for m in tier]
+_all_values = [
+    _tier_cost.get(m, 0)
+    for fam in _TIERS
+    for tier in _TIERS[fam].values()
+    for m in tier
+]
 _ymax = max(v for v in _all_values if v > 0) * 2
 _ymin = min(v for v in _all_values if v > 0) * 0.5
 for ax in axes:

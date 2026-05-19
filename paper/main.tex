@@ -352,7 +352,7 @@ We assessed the ability of different tiers of Large Language Models from  three 
 
 First, LLM performance varies substantially across models but is largely determined by model tier rather than provider. Top-tier models (Claude Opus 4.5 and 4.6, Gemini 3.1 Pro, and GPT-5.4) exceed 80\% average accuracy, while less-performing models achieve around 60\%. Half of the tasks in our testbed---\emph{Addition}, \emph{Pair Summation}, \emph{Letter Decoding}, and \emph{Sequence Completion}---are solved near-perfectly by all LLMs, while \emph{Sudoku}, \emph{Counting Zeros}, and \emph{String Entry} remain challenging even for the best ones.
 
-Second, within each tier, newer model releases consistently outperform their predecessors: Gemini Pro improved by 22\% between versions 2.5 and 3.1, and GPT-5 by 21\% from GPT-5 to GPT-5.4. Crucially, the largest gains are concentrated in the mid-range tier, which encompasses those LLMs that are most accessible to participants due to their lower cost.
+Second, within each tier, newer model releases \sout{consistently outperform} \blue{generally improve over} their predecessors: Gemini Pro improved by 22\% between versions 2.5 and 3.1, and GPT-5 by 21\% from GPT-5 to GPT-5.4. Crucially, the largest gains are concentrated in the mid-range tier, which encompasses those LLMs that are most accessible to participants due to their lower cost.
 %or availability in free tiers.
 This continuous improvement suggests that the set of tasks vulnerable to automation will likely expand with each
 %generation of
@@ -367,7 +367,7 @@ Furthermore,
 %as shown in Appendix~\ref{sec:learning},
 LLM accuracy is stationary across trials
 %: neither the average probability of a correct answer nor the cross-model dispersion changes with the trial index. This is expected, since current LLMs do not retain information from previous interactions within the same session---
-since API calls produce \sout{independent and identically distributed results by design} \blue{independent, stateless results that carry no memory across trials}. Human participants, by contrast, typically exhibit learning effects (improving with practice) or fatigue effects (declining accuracy over time). The absence of such within-session dynamics in LLMs \sout{provides a potential diagnostic tool} \blue{is, at most, a weak diagnostic evidence}: a flat accuracy profile over repeated \blue{trials}, combined with stable cross-participant variance, \sout{may signal} \blue{is consistent with} automated rather than human task completion.
+since API calls produce \sout{independent and identically distributed results by design} \blue{independent, stateless results that carry no memory across trials}. Human participants, by contrast, typically exhibit learning effects (improving with practice) or fatigue effects (declining accuracy over time). The absence of such within-session dynamics in LLMs \sout{provides a potential diagnostic tool} \blue{is, at most, weak diagnostic evidence}: a flat accuracy profile over repeated \blue{trials}, combined with stable cross-participant variance, \sout{may signal} \blue{is consistent with} automated rather than human task completion.
 
 As LLMs continue to improve, many real-effort tasks risk losing their validity as measures of human effort. We offer three practical recommendations. 
 First, one should prefer tasks that require perceptual skills (e.g., counting zeros, string entry) over purely computational ones (e.g., addition, sequence completion) when participant authenticity is a concern.
