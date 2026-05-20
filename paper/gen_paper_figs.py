@@ -843,7 +843,7 @@ ax.plot(
 )
 
 ax.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
-ax.set_xlabel("Avg Cost per Task ($)")
+ax.set_xlabel("Avg per-task cost ($)")
 ax.set_ylabel("Accuracy")
 ax.grid(alpha=0.3)
 # Tokens/task legend (bubble sizes)
@@ -1177,7 +1177,7 @@ ax.barh(
 )
 ax.set_yticks(range(len(model_avg_cost)))
 ax.set_yticklabels(model_avg_cost.index)
-ax.set_xlabel("Avg Cost per Task ($)")
+ax.set_xlabel("Avg per-task cost ($)")
 ax.grid(axis="x", alpha=0.3)
 for i, (val, se) in enumerate(zip(model_avg_cost["mean"], model_avg_cost["se"])):
     ax.text(
@@ -1437,7 +1437,7 @@ ax.plot(
 )
 
 ax.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
-ax.set_xlabel("Avg Cost per Task ($)")
+ax.set_xlabel("Avg per-task cost ($)")
 ax.set_ylabel("Accuracy")
 ax.grid(alpha=0.3)
 from matplotlib.lines import Line2D
@@ -1592,7 +1592,7 @@ ax.barh(
 )
 ax.set_yticks(range(len(_t0_cost)))
 ax.set_yticklabels(_t0_cost.index)
-ax.set_xlabel("Avg Cost per Task ($)")
+ax.set_xlabel("Avg per-task cost ($)")
 ax.grid(axis="x", alpha=0.3)
 for i, (val, se) in enumerate(zip(_t0_cost["mean"], _t0_cost["se"])):
     ax.text(val + se + 0.001, i, f"${val:.3f}", va="center", fontsize=FONT["bar_label"])
