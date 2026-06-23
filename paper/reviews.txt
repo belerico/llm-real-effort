@@ -1,0 +1,32 @@
+Reviewers' comments:
+
+This is a timely paper. The authors ask whether current LLMs can solve the kinds of real-effort tasks that experimental economists often use in online experiments. They test 23 models from OpenAI, Google, and Anthropic on eight standard tasks: addition, counting zeros, letter decoding, number-pair summation, sequence completion, Sudoku, distorted text, and string entry. The main result is straightforward: several of these tasks are now very easy for LLMs, especially addition, pair summation, letter decoding and sequence completion. Other tasks, especially counting zeros, string entry and Sudoku, are harder, but even there some models do reasonably well.
+
+I think the paper is potentially useful for JESA. The issue is important, and the paper makes the threat very concrete. Many online experiments still rely on the assumption that if a subject performs well on a real-effort task, this reflects human effort. This assumption is obviously becoming weaker. The paper shows this in a simple and clear way.
+
+That said, I do not think the paper is ready for acceptance yet. It needs some important revisions.
+
+The first issue is that there is no human benchmark. This is probably the biggest weakness of the paper. The authors say that these tasks may no longer measure human effort, but to assess this properly we need to know how LLMs compare with humans on the same tasks. For addition, this may not matter much: if LLMs are at 100%, the point is clear. But for Sudoku, counting zeros, distorted text and string entry, it matters a lot. If humans get 90% and LLMs get 35%, then the task is still useful. If humans get 40% and LLMs get 35%, then the conclusion is very different. The authors should either run a small human benchmark or be much more explicit that the paper is an LLM performance benchmark, not a full test of the validity of real-effort tasks.
+
+The second issue concerns the cost calculations. The result that using LLMs is cheap is important, but the units are not always clear. Sometimes “task” seems to mean one single task instance, and sometimes it seems to mean 20 runs of a task. This creates some confusion in Figures 4 and 5. The net gain calculation should be explained in a much more transparent way, with the exact denominator stated every time. I think the main conclusion will remain the same, but at the moment a reader has to work too hard to understand what is being priced.
+
+A third issue is the automation claim. The authors say that their procedure mirrors how a participant could screenshot a task and paste the LLM answer into oTree, and that full automation would add negligible cost. This is plausible, but it is not actually shown. If the paper wants to make a strong claim about automated task-milling, it should include at least a small proof-of-concept of the full pipeline. If the authors prefer not to do that, which I would understand, they should tone down the wording and say that they test the solvability of the tasks by LLMs, not the full cheating technology.
+
+I also found the incentive treatment less convincing than the rest of the paper. The authors tell LLMs that they will receive a monetary bonus, but of course the LLMs are not actually incentivised. So the null result is not surprising. It is fine to report it, but I would not make too much of it. In particular, the recommendation that researchers could use incentive responsiveness as a way to distinguish humans from LLMs seems too strong. Many humans may not respond much to small incentive differences, and someone using AI could probably engineer responses that mimic incentive responsiveness. So this should be presented much more cautiously.
+
+There are also some technical details that need fixing. The appendix reports p-values above 1 in some tables. That is obviously impossible and should be corrected. The paper also says that LLM responses are independent and identically distributed by design. I do not think this is right, or at least not without more information. The authors need to report the decoding settings: temperature, top-p, seeds if any, and any provider defaults. If temperature is zero, repetitions may not be independent. If temperature is positive, they may be stochastic, but model providers can still silently change models over time. This matters because the authors suggest that flat performance over time may be used as a diagnostic for LLM use.
+
+The claims about model progress should also be toned down a bit. The figures show that newer models often do better than older ones, and this is useful. But the paper is not really estimating a time trend. It is comparing the models available at one point in time, with provider-specific naming conventions. So I would avoid statements that sound too definitive, such as “performance improves with each generation”. It is better to say that, in the set of models tested, newer releases generally perform better.
+
+Finally, the paper should be careful not to overstate the conclusion. The results show that some real-effort tasks are highly vulnerable to LLM outsourcing in unsupervised online settings. That is already an important point. But it does not show that real-effort tasks as a whole have lost validity. Some tasks are still relatively hard for LLMs, and supervised lab settings are a different case.
+
+My recommendation is therefore revise and resubmit. Before publication, the authors should:
+
+* add a human benchmark, or clearly reframe the contribution as an LLM benchmark;
+* clarify the cost calculations and the meaning of “task” throughout;
+* report all API/decoding parameters;
+* fix the impossible p-values;
+* tone down the claims about incentives, stationarity, and full automation;
+* be more precise about which real-effort tasks are vulnerable, rather than implying that all such tasks are now invalid.
+
+With these changes, I think the paper could make a useful methodological contribution.

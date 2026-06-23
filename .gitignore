@@ -33,3 +33,6 @@ literature/
 # sqlite sidecar files
 *.db-shm
 *.db-wal
+
+human-exps/
+human-exps-anon/

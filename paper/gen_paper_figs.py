@@ -49,6 +49,16 @@ DB = (
     / "reports"
     / "results_orig.db"
 )
+HUMAN_DIR = Path(__file__).resolve().parent.parent / "human-exps"
+
+# Humans ran two sessions on separate days with a fresh oTree participant_code
+# each day, so email is the only cross-day identifier. A few people typed a
+# different email each day; collapse each pair to one identity (left -> canonical).
+HUMAN_EMAIL_ALIASES = {
+    "c.vendra@unibg.it": "c.vendra@studenti.unibg.it",
+    "a.bergamaschi04@gmail.com": "a.bergamaschi7@studenti.unibg.it",
+    "matty.rossi100@gmail.com": "m.rossi111@studenti.unibg.it",
+}
 
 # ── Load data ──
 conn = sqlite3.connect(DB)
@@ -192,6 +202,51 @@ def _rename_games(obj):
     elif isinstance(obj, list):
         return [GAME_LABELS.get(g, g) for g in obj]
     return obj
+
+
+def load_human_trials(matched_only=True):
+    """Trial-level human data, one row per trial: email, game, is_correct.
+
+    Day-1 contributes 5 games and day-2 the other 3. Emails are lowercased and
+    the hand-linked aliases applied before any matching.
+
+    With ``matched_only=True`` (default) a participant is retained only if their
+    email appears in BOTH days, so every retained participant has all 8 tasks.
+    With ``matched_only=False`` every participant who attempted a task is kept,
+    so each task's accuracy is computed over all of its participants rather than
+    just the both-days intersection.
+    """
+
+    def _read_day(day_dir):
+        frames = []
+        for path in sorted(day_dir.glob("*_custom_export_*.csv")):
+            game = path.name.split("_custom_export_")[0]
+            if game not in GAME_LABELS:
+                continue
+            d = pd.read_csv(path)[["participant_label", "is_correct"]].copy()
+            d["game"] = game
+            frames.append(d)
+        out = pd.concat(frames, ignore_index=True)
+        out["email"] = (
+            out["participant_label"]
+            .astype(str)
+            .str.strip()
+            .str.lower()
+            .replace(HUMAN_EMAIL_ALIASES)
+        )
+        return out
+
+    day1 = _read_day(HUMAN_DIR / "day-1")
+    day2 = _read_day(HUMAN_DIR / "day-2")
+    hum = pd.concat([day1, day2], ignore_index=True)
+    hum = hum[hum["email"].str.contains("@", na=False)].copy()
+    if matched_only:
+        matched = set(day1["email"]) & set(day2["email"])
+        hum = hum[hum["email"].isin(matched)].copy()
+    hum["is_correct"] = (
+        pd.to_numeric(hum["is_correct"], errors="coerce").fillna(0).astype(int)
+    )
+    return hum[["email", "game", "is_correct"]]
 
 
 MODEL_COLORS = {
@@ -412,14 +467,19 @@ avg_pivot["Mean"] = avg_pivot.mean(axis=1)
 avg_pivot.loc["Mean"] = avg_pivot.mean(axis=0)
 
 fig, ax = plt.subplots(figsize=(15, 10))
-_base_colors = plt.cm.RdYlGn(np.linspace(0, 1, 256))
-_base_colors[:, :3] = _base_colors[:, :3] * 0.8 + 0.2
-_cmap_light = mcolors.LinearSegmentedColormap.from_list("RdYlGn_light", _base_colors)
+# Grayscale sequential ramp so the heatmaps survive black-and-white printing:
+# the old Red-Yellow-Green made low (red) and high (green) collapse to nearly the
+# same gray. Low value = light, high = dark; seaborn auto-picks dark/white
+# annotation text per cell from the cell luminance.
+_base_colors = plt.cm.Greys(np.linspace(0.10, 0.85, 256))
+_cmap_light = mcolors.LinearSegmentedColormap.from_list("grays_seq", _base_colors)
+# Accuracy heatmaps: pale yellow (low) -> teal -> dark blue (high)
+_cmap_acc = "YlGnBu"
 sns.heatmap(
     avg_pivot,
     annot=True,
     fmt=".1f",
-    cmap=_cmap_light,
+    cmap=_cmap_acc,
     vmin=0,
     vmax=100,
     linewidths=0.3,
@@ -658,9 +718,10 @@ print("fig4")
 acc_pivot = grouped_df.pivot_table(
     index="model_short", columns=["treatment", "game"], values="accuracy"
 )
-# Shared colorbar normalisation across both files for visual comparability
+# Shared colorbar normalisation across both files for visual comparability.
+# Same YlGnBu palette as the accuracy heatmaps: light (negative) -> dark blue (positive).
 norm = matplotlib.colors.Normalize(vmin=-30, vmax=30)
-cmap = plt.get_cmap("RdYlGn")
+cmap = _cmap_acc
 
 for filename, title, t_high, t_low in [
     (
@@ -696,7 +757,6 @@ for filename, title, t_high, t_low in [
         fmt="+.1f",
         cmap=cmap,
         norm=norm,
-        center=0,
         linewidths=0.5,
         ax=ax,
         cbar_kws={"label": "Δ Accuracy (pp)", "shrink": 0.8},
@@ -1309,7 +1369,7 @@ sns.heatmap(
     _t0_pivot,
     annot=True,
     fmt=".1f",
-    cmap=_cmap_light,
+    cmap=_cmap_acc,
     vmin=0,
     vmax=100,
     linewidths=0.3,
@@ -1342,32 +1402,182 @@ fig.savefig(OUT / "fig1_t0_accuracy_heatmap.pdf", bbox_inches="tight")
 plt.close(fig)
 print("fig1_t0")
 
-# ── T0 Task Difficulty ──
+# ── T0 Accuracy Heatmap WITH a human-benchmark row ──
+# Same construction as fig1_t0, but appends a HUMAN row. Human accuracy on each
+# task uses ALL participants who attempted that task (matched_only=False), not
+# only the both-days matched intersection: per-participant accuracy averaged
+# over participants, symmetric with the per-model LLM rows.
+_hh_pivot = (
+    avg_t0.pivot_table(index="model_short", columns="game", values="accuracy") * 100
+)
+_hh_mean_acc = _hh_pivot.mean(axis=1)
+_hh_model_order = sorted(
+    _hh_mean_acc.index, key=lambda m: (_fam_key(m), -_hh_mean_acc[m])
+)
+_hh_game_order = _hh_pivot.mean(axis=0).sort_values(ascending=False).index.tolist()
+_hh_pivot = _hh_pivot.loc[_hh_model_order, _hh_game_order]
+
+_hum_all = load_human_trials(matched_only=False)
+_n_hum_all = _hum_all["email"].nunique()
+_hum_pp = _hum_all.groupby(["email", "game"])["is_correct"].mean().reset_index()
+_hum_task = _hum_pp.groupby("game")["is_correct"].mean() * 100
+_human_row = _hum_task.reindex(_hh_game_order)  # align to LLM column (game) order
+
+_hh_pivot = _rename_games(_hh_pivot)
+_human_row.index = [GAME_LABELS.get(g, g) for g in _hh_game_order]
+
+_hh_pivot["Mean"] = _hh_pivot.mean(axis=1)
+_llm_mean = _hh_pivot.mean(axis=0)
+_human_full = _human_row.reindex(_hh_pivot.columns[:-1])
+_human_full["Mean"] = _human_row.mean()
+_human_label = "Human"
+_hh_pivot.loc["Mean"] = _llm_mean
+_hh_pivot.loc[_human_label] = _human_full
+# Human as the first (top) row, then models by family, then the LLM Mean row
+_hh_pivot = _hh_pivot.reindex([_human_label] + list(_hh_model_order) + ["Mean"])
+
+fig, ax = plt.subplots(figsize=(15, 10.5))
+sns.heatmap(
+    _hh_pivot,
+    annot=True,
+    fmt=".1f",
+    cmap=_cmap_acc,
+    vmin=0,
+    vmax=100,
+    linewidths=0.3,
+    linecolor="white",
+    ax=ax,
+    cbar_kws={"label": "Accuracy (%)", "shrink": 0.8},
+    annot_kws={"size": FONT["annot"] - 2},
+)
+for lbl in ax.get_xticklabels():
+    if lbl.get_text() == "Mean":
+        lbl.set_weight("bold")
+for lbl in ax.get_yticklabels():
+    if lbl.get_text() in ("Mean", _human_label):
+        lbl.set_weight("bold")
+_models_hh = [m for m in _hh_pivot.index if m not in ("Mean", _human_label)]
+_n_models_hh = len(_models_hh)
+_prev_fam = None
+for _i, _m in enumerate(_models_hh):
+    _fam = 0 if _m.startswith("claude") else (1 if _m.startswith("gemini") else 2)
+    if _prev_fam is not None and _fam != _prev_fam:
+        ax.axhline(y=_i + 1, color="black", linewidth=1.5)  # +1: Human occupies row 0
+    _prev_fam = _fam
+ax.axhline(y=1, color="black", linewidth=1.5)  # Human | models
+ax.axhline(y=_n_models_hh + 1, color="black", linewidth=1.5)  # models | Mean
+ax.axvline(x=len(_hh_pivot.columns) - 1, color="black", linewidth=1.5)
+ax.set_ylabel("")
+ax.set_xlabel("")
+fig.tight_layout()
+fig.savefig(OUT / "fig1_t0_accuracy_heatmap_human.pdf", bbox_inches="tight")
+plt.close(fig)
+print("fig1_t0_human")
+
+# ── T0 Task Difficulty (LLM vs Human) ──
+# LLM bar: mean (± SE) over the 23 models of per-model T0 accuracy on each task.
 _t0_gd = (
     avg_t0.groupby("game", observed=True)["accuracy"]
     .agg(["mean", "std", "count"])
     .sort_values("mean", ascending=True)
 )
 _t0_gd["se"] = _t0_gd["std"] / np.sqrt(_t0_gd["count"])
+# Human bar: mean (± SE) over all participants of per-participant accuracy on each
+# task (everyone who attempted it, not just the both-days intersection) —
+# symmetric with the LLM (one accuracy value per agent per task).
+_hum_trials = load_human_trials(matched_only=False)
+_hum_pg = _hum_trials.groupby(["email", "game"])["is_correct"].mean().reset_index()
+_hum_gd = _hum_pg.groupby("game")["is_correct"].agg(["mean", "std", "count"])
+_hum_gd["se"] = _hum_gd["std"] / np.sqrt(_hum_gd["count"])
+
+# Per-task LLM-vs-human difference p-values, taken verbatim from Table
+# tab:avg_llm_hum (ALL participants). Regenerate the table — and these values —
+# with paper/reestimate_llm_vs_human.py if the human sample changes.
+_llm_hum_pval = {
+    "add_numbers": 0.005,
+    "counting_zeros": 0.0,
+    "string_entry": 0.0,
+    "sudoku_game": 0.0,
+    "task_decoding": 0.717,
+    "task_sequences": 0.0,
+    "task_summation": 0.072,
+    "task_transcription": 0.0,
+}
+
+
+def _fmt_pval(p):
+    return "p < 0.001" if p < 0.001 else f"p = {p:.3f}"
+
+
+_game_order = _t0_gd.index.tolist()
+_y = np.arange(len(_game_order))
+_bh = 0.4
+_llm_m, _llm_se = _t0_gd["mean"].values, _t0_gd["se"].values
+_hum_m = _hum_gd["mean"].reindex(_game_order).values
+_hum_se = _hum_gd["se"].reindex(_game_order).values
+
 fig, ax = plt.subplots(figsize=(12, 7))
 ax.barh(
-    range(len(_t0_gd)),
-    _t0_gd["mean"],
-    xerr=_t0_gd["se"],
-    capsize=4,
+    _y - _bh / 2,
+    _hum_m,
+    _bh,
+    color="#DD8452",
+    edgecolor="white",
+    label="Human",
+)
+ax.barh(
+    _y + _bh / 2,
+    _llm_m,
+    _bh,
     color="#4C72B0",
     edgecolor="white",
+    label="LLM",
 )
-ax.set_yticks(range(len(_t0_gd)))
-ax.set_yticklabels([GAME_LABELS.get(g, g) for g in _t0_gd.index])
-ax.set_xlim(0, 1.05)
+ax.set_yticks(_y)
+ax.set_yticklabels([GAME_LABELS.get(g, g) for g in _game_order])
+ax.set_xlim(0, 1.32)
 ax.xaxis.set_major_formatter(mtick.PercentFormatter(1.0))
+ax.set_xticks(np.arange(0, 1.01, 0.2))  # cap axis at 100%; p-value column sits beyond
 ax.set_xlabel("Accuracy")
 ax.grid(axis="x", alpha=0.3)
-for i, (val, se) in enumerate(zip(_t0_gd["mean"], _t0_gd["se"])):
-    ax.text(val + se + 0.01, i, f"{val:.1%}", va="center", fontsize=FONT["bar_label"])
-fig.tight_layout()
-fig.savefig(OUT / "fig3_t0_task_difficulty.pdf", bbox_inches="tight")
+ax.grid(axis="y", visible=False)  # no horizontal gridlines
+_leg = ax.legend(
+    fontsize=FONT["legend"],
+    ncol=2,
+    loc="upper center",
+    bbox_to_anchor=(0.5, -0.16),
+    framealpha=0.9,
+)
+for i in range(len(_game_order)):
+    ax.text(
+        _hum_m[i] + 0.01,
+        i - _bh / 2,
+        f"{_hum_m[i]:.1%}",
+        va="center",
+        fontsize=FONT["bar_label"] - 1,
+    )
+    ax.text(
+        _llm_m[i] + 0.01,
+        i + _bh / 2,
+        f"{_llm_m[i]:.1%}",
+        va="center",
+        fontsize=FONT["bar_label"] - 1,
+    )
+    # LLM-vs-human difference p-value (Table tab:avg_llm_hum), right-aligned column
+    ax.text(
+        1.30,
+        i,
+        _fmt_pval(_llm_hum_pval[_game_order[i]]),
+        va="center",
+        ha="right",
+        fontsize=FONT["bar_label"] - 1,
+        color="#333333",
+    )
+fig.savefig(
+    OUT / "fig3_t0_task_difficulty.pdf",
+    bbox_extra_artists=[_leg],
+    bbox_inches="tight",
+)
 plt.close(fig)
 print("fig3_t0")
 
@@ -1402,7 +1612,7 @@ for _, row in _t0_ms.iterrows():
     ax.annotate(
         MODEL_ABBREV.get(row["model_short"], row["model_short"]),
         (row["cost_per_game"], row["accuracy"]),
-        fontsize=11,
+        fontsize=14,
         ha="center",
         va="bottom",
         xytext=(0, radius_pt + 4),
@@ -1541,7 +1751,10 @@ values = list(_t0_net_model.values) + [_t0_smart_ng]
 
 fig, ax = plt.subplots(figsize=(10, 8))
 y = np.arange(len(labels))
-bar_colors = [MODEL_COLORS.get(m, "#888888") for m in _t0_net_model.index] + ["#E03030"]
+bar_colors = (
+    [MODEL_COLORS.get(m, "#888888") for m in _t0_net_model.index]
+    + ["#E03030"]
+)
 ax.barh(y, values, color=bar_colors, edgecolor="white", linewidth=0.5)
 ax.set_yticks(y)
 ax.set_yticklabels(labels, fontsize=9)
@@ -1555,7 +1768,7 @@ ax.grid(axis="x", alpha=0.3)
 for i, val in enumerate(values):
     offset = 0.05 if val >= 0 else -0.05
     ha = "left" if val >= 0 else "right"
-    fw = "bold" if i == len(values) - 1 else "normal"
+    fw = "bold" if i >= len(values) - 1 else "normal"
     ax.text(
         val + offset, i, f"${val:.2f}", va="center", ha=ha, fontsize=8, fontweight=fw
     )
@@ -1624,7 +1837,7 @@ for treatment in TREATMENT_ORDER[1:]:
         pivot,
         annot=True,
         fmt=".1f",
-        cmap=_cmap_light,
+        cmap=_cmap_acc,
         vmin=0,
         vmax=100,
         linewidths=0.3,
