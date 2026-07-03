@@ -54,11 +54,7 @@ HUMAN_DIR = Path(__file__).resolve().parent.parent / "human-exps"
 # Humans ran two sessions on separate days with a fresh oTree participant_code
 # each day, so email is the only cross-day identifier. A few people typed a
 # different email each day; collapse each pair to one identity (left -> canonical).
-HUMAN_EMAIL_ALIASES = {
-    "c.vendra@unibg.it": "c.vendra@studenti.unibg.it",
-    "a.bergamaschi04@gmail.com": "a.bergamaschi7@studenti.unibg.it",
-    "matty.rossi100@gmail.com": "m.rossi111@studenti.unibg.it",
-}
+HUMAN_EMAIL_ALIASES = {}
 
 # ── Load data ──
 conn = sqlite3.connect(DB)
@@ -1751,10 +1747,7 @@ values = list(_t0_net_model.values) + [_t0_smart_ng]
 
 fig, ax = plt.subplots(figsize=(10, 8))
 y = np.arange(len(labels))
-bar_colors = (
-    [MODEL_COLORS.get(m, "#888888") for m in _t0_net_model.index]
-    + ["#E03030"]
-)
+bar_colors = [MODEL_COLORS.get(m, "#888888") for m in _t0_net_model.index] + ["#E03030"]
 ax.barh(y, values, color=bar_colors, edgecolor="white", linewidth=0.5)
 ax.set_yticks(y)
 ax.set_yticklabels(labels, fontsize=9)
